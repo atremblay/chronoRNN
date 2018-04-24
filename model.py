@@ -2,7 +2,7 @@
 # @Author: Alexis Tremblay
 # @Date:   2018-04-24 08:41:35
 # @Last Modified by:   Alexis Tremblay
-# @Last Modified time: 2018-04-24 11:28:14
+# @Last Modified time: 2018-04-24 11:50:21
 
 
 from torch.nn import Parameter
@@ -25,7 +25,6 @@ class ChronoLSTM(nn.Module):
 
         # Input gate
         self.w_xi = Parameter(torch.Tensor(input_size, hidden_size))
-
         self.w_hi = Parameter(torch.Tensor(hidden_size, hidden_size))
         self.b_i = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
 
@@ -99,3 +98,63 @@ class ChronoLSTM(nn.Module):
         # Current state
         state = (self.h, self.c)
         return self.h, state
+
+
+class RNN(nn.Module):
+    """A vanilla RNN implementation with a gated option"""
+    def __init__(self, input_size, hidden_size, batch_size=32, gated=False):
+        super(RNN, self).__init__()
+
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.batch_size = batch_size
+        self.gated = gated
+
+        # Hidden state
+        self.w_xh = Parameter(torch.Tensor(input_size, hidden_size))
+        self.w_hh = Parameter(torch.Tensor(hidden_size, hidden_size))
+        self.b_h = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
+
+        # Time warp gate
+        self.w_gx = Parameter(torch.Tensor(input_size, hidden_size))
+        self.w_gh = Parameter(torch.Tensor(hidden_size, hidden_size))
+        self.b_g = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
+
+        # The hidden state is a learned parameter
+        self.h = Parameter(torch.Tensor(hidden_size)).repeat(batch_size, 1)
+        self.g = Parameter(torch.Tensor(hidden_size)).repeat(batch_size, 1)
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        stdv = 1.0 / math.sqrt(self.hidden_size)
+        for weight in self.parameters():
+            weight.data.uniform_(-stdv, stdv)
+
+    def size(self):
+        return self.num_inputs, self.hidden_size
+
+    def forward(self, x=None):
+        if x is None:
+            x = Variable(torch.zeros(self.batch_size, self.num_inputs))
+
+        (h, g) = self.h, self.g
+
+        if self.gated:
+            self.g = F.tanh(
+                torch.mm(x, self.w_gx) + torch.mm(h, self.w_gh) + self.b_g
+            )
+            # Hidden state
+            self.h = g * F.tanh(
+                torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
+            ) + (1 - g) * h
+
+            # Current state
+            state = (self.h, self.g)
+            return self.h, state
+        else:
+            # Hidden state
+            self.h = F.tanh(
+                torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
+            )
+            return self.h
