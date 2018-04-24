@@ -2,7 +2,7 @@
 # @Author: Alexis Tremblay
 # @Date:   2018-04-24 08:41:35
 # @Last Modified by:   Alexis Tremblay
-# @Last Modified time: 2018-04-24 11:15:42
+# @Last Modified time: 2018-04-24 11:28:14
 
 
 from torch.nn import Parameter
@@ -16,12 +16,11 @@ import math
 
 class ChronoLSTM(nn.Module):
     """A chrono LSTM implementation"""
-    def __init__(self, input_size, hidden_size, num_layers=1, batch_size=32):
+    def __init__(self, input_size, hidden_size, batch_size=32):
         super(ChronoLSTM, self).__init__()
 
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.num_layers = num_layers
         self.batch_size = batch_size
 
         # Input gate
@@ -35,7 +34,7 @@ class ChronoLSTM(nn.Module):
         self.w_hf = Parameter(torch.Tensor(hidden_size, hidden_size))
         self.b_f = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
 
-        # c gate
+        # Cell state
         self.w_xc = Parameter(torch.Tensor(input_size, hidden_size))
         self.w_hc = Parameter(torch.Tensor(hidden_size, hidden_size))
         self.b_c = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
@@ -45,21 +44,9 @@ class ChronoLSTM(nn.Module):
         self.w_ho = Parameter(torch.Tensor(hidden_size, hidden_size))
         self.b_o = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
 
-        self.lstm = nn.LSTM(input_size=input_size,
-                            hidden_size=hidden_size,
-                            num_layers=num_layers)
-
         # The hidden state is a learned parameter
-        self.h = Parameter(
-            torch.randn(
-                self.hidden_size
-            ) * 0.05
-        ).repeat(self.batch_size, 1)
-        self.c = Parameter(
-            torch.randn(
-                self.hidden_size
-            ) * 0.05
-        ).repeat(self.batch_size, 1)
+        self.h = Parameter(torch.Tensor(hidden_size)).repeat(batch_size, 1)
+        self.c = Parameter(torch.Tensor(hidden_size)).repeat(batch_size, 1)
 
         self.reset_parameters()
         self.chrono_bias(input_size)
@@ -111,4 +98,4 @@ class ChronoLSTM(nn.Module):
 
         # Current state
         state = (self.h, self.c)
-        return h, state
+        return self.h, state
