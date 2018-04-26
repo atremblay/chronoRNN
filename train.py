@@ -58,7 +58,9 @@ def train_batch(net, criterion, optimizer, X, Y, task):
     loss = Variable(torch.zeros(1))
     if task == 'warpTask':
         net.create_new_state()
+        y_out = Variable(torch.zeros(outp_seq_len, batch_size, num_features))
         for i in range(inp_seq_len):
+            print(i)
             loss += criterion(net(X[i])[0], Y[i])
     else:
         # Feed the sequence + delimiter
