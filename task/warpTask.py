@@ -31,11 +31,11 @@ def dataloader(batch_size,
         )
 
         inp = to_categorical(inp, num_classes=len(alphabet) + 1)
-        outp = to_categorical(outp, num_classes=len(alphabet) + 1)
+        # outp = to_categorical(outp, num_classes=len(alphabet) + 1)
         inp = Variable(torch.from_numpy(inp))
-        outp = Variable(torch.from_numpy(outp))
+        outp = Variable(torch.LongTensor(outp))
 
-        yield batch_num + 1, inp.float(), outp.float()
+        yield batch_num + 1, inp.float(), outp
 
 
 @attrs

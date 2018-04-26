@@ -49,17 +49,19 @@ def train_model(model, args):
 def train_batch(net, criterion, optimizer, X, Y, task):
     """Trains a single batch."""
     optimizer.zero_grad()
-    inp_seq_len = X.size(0)
-    outp_seq_len, batch_size, num_features = Y.size()
+    inp_seq_len, batch_size, num_features = X.size()
+    outp_seq_len, batch_size = Y.size()
 
     # New sequence
     # net.init_sequence(batch_size)
+
     if task == 'warpTask':
+        loss = 0
         net.create_new_state()
         y_out = Variable(torch.zeros(outp_seq_len, batch_size, num_features))
         for i in range(inp_seq_len):
             y_out[i], _ = net(X[i])
-        loss = criterion(y_out, Y)
+            loss += criterion(y_out[i], Y[i])
     else:
         # Feed the sequence + delimiter
         for i in range(inp_seq_len):
