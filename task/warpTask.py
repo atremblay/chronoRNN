@@ -31,10 +31,11 @@ def dataloader(batch_size,
         )
 
         inp = to_categorical(inp, num_classes=len(alphabet) + 1)
+        outp = to_categorical(outp, num_classes=len(alphabet) + 1)
         inp = Variable(torch.from_numpy(inp))
         outp = Variable(torch.from_numpy(outp))
 
-        yield batch_num + 1, inp, outp.float()
+        yield batch_num + 1, inp.float(), outp.float()
 
 
 @attrs
@@ -75,7 +76,7 @@ class TaskModelTraining(object):
 
     @criterion.default
     def default_criterion(self):
-        return nn.BCELoss()
+        return nn.CrossEntropyLoss()
 
     @optimizer.default
     def default_optimizer(self):
