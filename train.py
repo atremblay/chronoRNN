@@ -87,7 +87,8 @@ def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths):
     progress_clean()
 
     checkpoint_path = Path(args.checkpoint_path)
-    checkpoint_path.mkdir(exist_ok=True)
+    assert checkpoint_path.exists(), f"You need to create {checkpoint_path}"
+    #checkpoint_path.mkdir(exist_ok=True)
 
     basename = "{}/{}-{}-batch-{}".format(checkpoint_path, name, args.seed, batch_num)
     model_fname = basename + ".model"
