@@ -13,7 +13,7 @@ def display_arguments(opt):
     opt_dict = vars(opt)
     formatted_opt = [f"\t- {k + ' :':23} {v}" for k, v in opt_dict.items()]
     joined_opt = "\n".join(formatted_opt)
-    LOGGER.debug(f"\nCommand-line arguments:\n{joined_opt}")
+    LOGGER.debug(f"\nCommand-line arguments:\n{joined_opt}\n")
 
 
 def parse_options():
