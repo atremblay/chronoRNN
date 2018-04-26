@@ -11,7 +11,8 @@ def get_model(opt):
     LOGGER.info("Training for the **%s** task", opt.task)
     mods = getattr(__import__('task.' + opt.task), opt.task)
 
-    model_cls, params_cls = mods.TaskModelTraining, mods.TaskParams
+    model_cls = mods.TaskModelTraining
+    params_cls = mods.TaskParams
     params = params_cls()
     params = update_model_params(params, opt.param)
 

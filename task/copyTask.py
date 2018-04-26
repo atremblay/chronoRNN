@@ -9,11 +9,12 @@ from torch import optim
 import model
 from data import copy_data
 import torch
+from utils.Variable import Variable
 
 
 # Generator of randomized test sequences
 def dataloader(batch_size, num_batches,
-               alphabet, dummy, eos, variable,
+               alphabet, dummy, eos, variable, seq_len,
                ):
     """Generator of random sequences for the add task.
 
@@ -21,11 +22,11 @@ def dataloader(batch_size, num_batches,
     for batch_num in range(num_batches):
 
         inp, outp = copy_data(alphabet=alphabet, dummy=dummy, eos=eos,
-                              batch_size=batch_size, variable=variable,)
+                              batch_size=batch_size, variable=variable, T=seq_len)
 
-        inp = torch.from_numpy(inp)
-        outp = torch.from_numpy(outp)
-        yield batch_num + 1, inp.float(), outp.float()
+        inp = Variable(torch.from_numpy(inp))
+        outp = Variable(torch.from_numpy(outp))
+        yield batch_num + 1, inp.float().unsqueeze(-1), outp.float()
 
 
 @attrs
@@ -44,10 +45,11 @@ class TaskParams(object):
     # Dataloader params
     num_batches = attrib(default=1000, convert=int)
     seq_len = attrib(default=10, convert=int)
-    max_repeat = attrib(default=4, convert=int)
     variable = attrib(default=False, convert=bool)
     alphabet = attrib(default=range(1, 9), convert=list)
     chrono = attrib(default=False, convert=bool)
+    dummy = attrib(default=9, convert=int)
+    eos = attrib(default=10, convert=int)
 
 
 @attrs
@@ -67,7 +69,7 @@ class TaskModelTraining(object):
 
     @criterion.default
     def default_criterion(self):
-        return nn.MSELoss()
+        return nn.BCELoss()
 
     @optimizer.default
     def default_optimizer(self):
