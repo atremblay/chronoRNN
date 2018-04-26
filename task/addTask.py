@@ -7,7 +7,7 @@ from torch import optim
 import model
 from data import add_data
 import torch
-
+from utils.Variable import Variable
 
 # Generator of randomized test sequences
 def dataloader(batch_size,
@@ -21,9 +21,9 @@ def dataloader(batch_size,
 
         inp, outp = add_data(seq_len, batch_size)
 
-        inp = torch.from_numpy(inp)
-        outp = torch.from_numpy(outp)
-        yield batch_num + 1, inp.float(), outp.float()
+        inp = Variable(torch.from_numpy(inp))
+        outp = Variable(torch.from_numpy(outp))
+        yield batch_num + 1, inp.float().unsqueeze(-1).permute(1, 0, 2), outp.float()
 
 
 @attrs
