@@ -51,8 +51,7 @@ def train_batch(net, criterion, optimizer, X, Y, task):
     """Trains a single batch."""
     optimizer.zero_grad()
     inp_seq_len, batch_size, num_features = X.size()
-    print(net.multi_target)
-
+    
     if task == 'warpTask' or task == "copyTask":
         loss = Variable(torch.zeros(1))
         net.create_new_state()
@@ -65,6 +64,26 @@ def train_batch(net, criterion, optimizer, X, Y, task):
             output, hidden_state = net(X[i])
         loss = criterion(output, Y)
 
+    """
+    else:
+        outp_seq_len, batch_size = Y.size()
+        loss = Variable(torch.zeros(1))
+        # Feed the sequence + delimiter
+        for i in range(inp_seq_len):
+            net(X[i])
+
+        # Read the output (no input given)
+        y_out = Variable(torch.zeros(Y.size()[:2] + (net.hidden_size,)))
+        for i in range(outp_seq_len):
+            y_out[i], _ = net()
+
+        if net.multi_target:
+            for y_i, Y_i in zip(y_out, Y):
+                loss += criterion(y_i, Y_i.squeeze())
+        else:
+            loss += criterion(y_out, Y)
+
+    """
     loss.backward()
     optimizer.step()
 
