@@ -40,9 +40,8 @@ class TaskParams(object):
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params
-    num_batches = attrib(default=1000, convert=bool)
+    num_batches = attrib(default=1000, convert=int)
     seq_len = attrib(default=10, convert=int)
-
 
 
 @attrs
