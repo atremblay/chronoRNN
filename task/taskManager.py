@@ -2,8 +2,41 @@ import logging
 import re
 import sys
 import attr
-
+from utils.Variable import Variable
+import torch
 LOGGER = logging.getLogger(__name__)
+
+
+def per_sequence_item_loss(net, X, Y, criterion):
+    loss = Variable(torch.zeros(1))
+    net.create_new_state()
+    for i in range(X.size(0)):
+        loss += criterion(net(X[i])[0], Y[i])
+    return loss
+
+
+def per_full_sequence_loss(net, X, Y, criterion):
+    net.create_new_state()
+    for i in range(X.size(0)):
+        output, hidden_state = net(X[i])
+    loss = criterion(output, Y)
+    return loss
+
+
+def per_sequence_item_forward(net, X,):
+    net.create_new_state()
+    outputs = [] # The outputs can be of a variable size.
+    for i in range(X.size(0)):
+        outputs.append(net(X[i])[0])
+    return outputs
+
+
+def per_full_sequence_forward(net, X):
+    net.create_new_state()
+    output = None
+    for i in range(X.size(0)):
+        output = net(X[i])[0]
+    return output
 
 
 def get_model(opt):

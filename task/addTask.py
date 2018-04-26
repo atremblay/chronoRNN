@@ -8,6 +8,7 @@ import model
 from data import add_data
 import torch
 from utils.Variable import Variable
+from task.taskManager import per_full_sequence_loss, per_full_sequence_forward
 
 # Generator of randomized test sequences
 def dataloader(batch_size,
@@ -48,6 +49,8 @@ class TaskParams(object):
 class TaskModelTraining(object):
     params = attrib(default=Factory(TaskParams))
     net, dataloader, criterion, optimizer = attrib(), attrib(), attrib(), attrib()
+    loss_fn = per_full_sequence_loss
+    forward_fn = per_full_sequence_forward
 
     @net.default
     def default_net(self):

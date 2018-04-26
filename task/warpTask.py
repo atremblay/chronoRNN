@@ -5,6 +5,7 @@ from torch import optim
 import model
 from utils.Variable import Variable
 from data import warp_data, to_categorical
+from task.taskManager import per_sequence_item_loss, per_sequence_item_forward
 import torch
 
 
@@ -68,6 +69,8 @@ class TaskParams(object):
 class TaskModelTraining(object):
     params = attrib(default=Factory(TaskParams))
     net, dataloader, criterion, optimizer = attrib(), attrib(), attrib(), attrib()
+    loss_fn = per_sequence_item_loss
+    forward_fn = per_sequence_item_forward
 
     @net.default
     def default_net(self):
@@ -90,3 +93,4 @@ class TaskModelTraining(object):
                              momentum=self.params.rmsprop_momentum,
                              alpha=self.params.rmsprop_alpha,
                              lr=self.params.rmsprop_lr)
+
