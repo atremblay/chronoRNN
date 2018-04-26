@@ -7,9 +7,13 @@ from torch import nn
 from utils.argument import get_valid_fct_args
 from torch import optim
 import model
-from data import copy_data
+from data import copy_data, to_categorical
 import torch
 from utils.Variable import Variable
+
+
+def compute_input_size(alphabet):
+    return len(alphabet) + 3
 
 
 # Generator of randomized test sequences
@@ -20,23 +24,23 @@ def dataloader(batch_size, num_batches,
 
     """
     for batch_num in range(num_batches):
-
         inp, outp = copy_data(alphabet=alphabet, dummy=dummy, eos=eos,
                               batch_size=batch_size, variable=variable, T=seq_len)
 
-        inp = Variable(torch.from_numpy(inp))
+        inp = Variable(torch.from_numpy(to_categorical(inp, num_classes=compute_input_size(alphabet))))
+        # outp = Variable(torch.from_numpy(to_categorical(outp, num_classes=compute_input_size(alphabet))))
         outp = Variable(torch.from_numpy(outp))
-        yield batch_num + 1, inp.float().unsqueeze(-1), outp.float()
+
+        yield batch_num + 1, inp, outp
 
 
 @attrs
 class TaskParams(object):
     # ALL OF THIS NEEDS TO BE CHECKED
+    batch_size = attrib(default=1, convert=int)
     name = attrib(default="copyTask")
     # Model params
     model_type = attrib(default="Rnn")
-    batch_size = attrib(default=1, convert=int)
-    input_size = attrib(default=1, convert=int)
     hidden_size = attrib(default=64, convert=int)
     # Optimizer params
     rmsprop_lr = attrib(default=1e-4, convert=float)
@@ -58,6 +62,7 @@ class TaskModelTraining(object):
     @net.default
     def default_net(self):
         net = getattr(model, self.params.model_type)
+        self.params.input_size = compute_input_size(self.params.alphabet)
         net = net(**get_valid_fct_args(net.__init__, self.params))
         return net
 
@@ -67,7 +72,7 @@ class TaskModelTraining(object):
 
     @criterion.default
     def default_criterion(self):
-        return nn.BCELoss()
+        return nn.CrossEntropyLoss()
 
     @optimizer.default
     def default_optimizer(self):

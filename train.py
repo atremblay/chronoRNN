@@ -5,6 +5,7 @@ import torch
 import json
 import logging
 from pathlib import Path
+from torch.nn import functional as F
 LOGGER = logging.getLogger(__name__)
 
 
@@ -23,7 +24,7 @@ def train_model(model, args):
     start_ms = get_ms()
 
     for batch_num, x, y in model.dataloader:
-        loss = train_batch(model.net, model.criterion, model.optimizer, x, y ,task)
+        loss = train_batch(model.net, model.criterion, model.optimizer, x, y, task)
         losses += [loss]
         seq_lengths += [y.size(0)]
 
@@ -65,9 +66,13 @@ def train_batch(net, criterion, optimizer, X, Y, task):
 
     elif task == "copyTask":
         net.create_new_state()
+        output = Variable(torch.FloatTensor(*X.size()))
+        print(X.size())
         for i in range(inp_seq_len):
-            output, hidden_state = net(X[i])
-        loss = criterion(output, Y)
+            output[i], hidden_state = net(X[i])
+
+        prediction = F.log_softmax(output, dim=-1)
+        loss = criterion(prediction, Y)
 
     else:
         outp_seq_len, batch_size = Y.size()
