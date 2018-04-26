@@ -8,6 +8,10 @@ from data import warp_data, to_categorical
 import torch
 
 
+def compute_input_size(alphabet):
+    return len(alphabet) + 1
+
+
 # Generator of randomized test sequences
 def dataloader(batch_size,
                num_batches,
@@ -44,7 +48,6 @@ class TaskParams(object):
     # Model params
     model_type = attrib(default="Rnn")
     batch_size = attrib(default=1, convert=int)
-    input_size = attrib(default=11, convert=int)
     hidden_size = attrib(default=64, convert=int)
     # Optimizer params
     rmsprop_lr = attrib(default=1e-4, convert=float)
@@ -68,6 +71,7 @@ class TaskModelTraining(object):
 
     @net.default
     def default_net(self):
+        self.params.input_size = compute_input_size(self.params.alphabet)
         net = getattr(model, self.params.model_type)
         net = net(**get_valid_fct_args(net.__init__, self.params))
         return net

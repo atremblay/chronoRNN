@@ -51,7 +51,7 @@ def train_batch(net, criterion, optimizer, X, Y, task):
     """Trains a single batch."""
     optimizer.zero_grad()
     inp_seq_len, batch_size, num_features = X.size()
-    
+
     if task == 'warpTask' or task == "copyTask":
         loss = Variable(torch.zeros(1))
         net.create_new_state()
