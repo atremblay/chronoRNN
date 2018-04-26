@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import json
 import logging
-
+from pathlib import Path
 LOGGER = logging.getLogger(__name__)
 
 
@@ -60,7 +60,6 @@ def train_batch(net, criterion, optimizer, X, Y, task):
         net.create_new_state()
         y_out = Variable(torch.zeros(outp_seq_len, batch_size, num_features))
         for i in range(inp_seq_len):
-            print(i)
             loss += criterion(net(X[i])[0], Y[i])
     else:
         # Feed the sequence + delimiter
@@ -87,7 +86,10 @@ def train_batch(net, criterion, optimizer, X, Y, task):
 def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths):
     progress_clean()
 
-    basename = "{}/{}-{}-batch-{}".format(args.checkpoint_path, name, args.seed, batch_num)
+    checkpoint_path = Path(args.checkpoint_path)
+    checkpoint_path.mkdir(exist_ok=True)
+
+    basename = "{}/{}-{}-batch-{}".format(checkpoint_path, name, args.seed, batch_num)
     model_fname = basename + ".model"
     LOGGER.info("Saving model checkpoint to: '%s'", model_fname)
     torch.save(net.state_dict(), model_fname)
