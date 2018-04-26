@@ -41,11 +41,8 @@ class TaskParams(object):
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params
     num_batches = attrib(default=1000, convert=bool)
-    seq_len = attrib(default=10, convert=bool)
-    max_repeat = attrib(default=4, convert=int)
-    uniform_warp = attrib(default=False, convert=bool)
-    alphabet = attrib(default=(1, 11), convert=tuple)
-    pad = attrib(default=0, convert=int)
+    seq_len = attrib(default=10, convert=int)
+
 
 
 @attrs
