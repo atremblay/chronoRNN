@@ -2,7 +2,7 @@
 # @Author: alexis
 # @Date:   2018-04-24 08:12:52
 # @Last Modified by:   Alexis Tremblay
-# @Last Modified time: 2018-04-24 08:42:05
+# @Last Modified time: 2018-04-26 11:20:31
 
 
 import random
@@ -72,11 +72,12 @@ def warp(sequence, max_repeat=4, uniform_warp=False, pad=0):
 
 def warp_data(
     T,
-    alphabet=(1, 11),
+    alphabet=range(1, 11),
     max_repeat=4,
     uniform_warp=False,
     pad=0,
-    batch_size=32
+    batch_size=32,
+    batch_first=False
 ):
     """
     This will return two matrix of indexes to use as inputs and targets.
@@ -105,9 +106,15 @@ def warp_data(
     pad: int (default 0)
         Padding symbol. Typically zero.
 
+    batch_size: int (default 32)
+
+    batch_first: Boolean (default False)
+        If True, then the input and output tensors are provided as
+        (batch, 𝑇).
+
     Returns
     -------
-    warped_inputs: numpy array of int of size (batch_size x T)
+    warped_inputs: numpy array of int of size (T, batch_size)
         The original sequence warped according to the parameters provided
 
     targets: numpy array of int of size (batch_size x T)
@@ -116,7 +123,7 @@ def warp_data(
 
     # This gives n-1 list of elements with the i-th element removed
     # This is to avoid consecutive repeating elements
-    alphabet = range(*alphabet)
+    # alphabet = range(*alphabet)
     indexes = range(len(alphabet))
 
     idx_to_choose = list(
@@ -136,16 +143,21 @@ def warp_data(
         inputs.append(warped_input[:T])
         targets.append(target[:T])
         sequences.append(sequence)
-    return np.array(inputs), np.array(targets)
+
+    if batch_first:
+        return np.array(inputs), np.array(targets)
+    else:
+        return np.array(inputs).T, np.array(targets).T
 
 
 def copy_data(
     T,
-    alphabet=(1, 9),
+    alphabet=range(1, 9),
     dummy=9,
     eos=10,
     batch_size=32,
-    variable=False
+    variable=False,
+    batch_first=False
 ):
     """
     For a given 𝑇 , input sequences consist of 𝑇 + 20 characters. The first 10
@@ -186,21 +198,25 @@ def copy_data(
         The number of characters between the end of the sequence to copy and
         the signal character is drawn at random between 1 and 𝑇.
 
+    batch_first: Boolean (default False)
+        If True, then the input and output tensors are provided as
+        (batch, 𝑇).
+
     Returns
     -------
 
-    input: numpy array of size (batch_size x R)
+    input: numpy array of shape (𝑇 + x, batch_size)
         If 'variable' is set to False, this will be a matrix of size
-        batch_size X (T + 20)
+        (𝑇 + 20, batch_size)
 
         If 'variable' is set to True, this will be a matrix of size
-        batch_size X (T + 10 + 𝒰([1, T]) )
+        (𝑇 + 10 + 𝒰([1, 𝑇]), batch_szie)
 
     output: numpy
         𝑇 + 10 dummy characters, followed by the first 10 characters of the
         input
     """
-    alphabet = range(*alphabet)
+    # alphabet = range(*alphabet)
     sequences = np.random.choice(alphabet, size=(batch_size, 10))
     dummies = np.ones(shape=(batch_size, T - 1)) * dummy
     signal = np.ones(shape=(batch_size, 1)) * eos
@@ -219,7 +235,10 @@ def copy_data(
     else:
         filling = np.ones(shape=(batch_size, 10)) * dummy
 
-    return np.concatenate([values, filling], axis=1), output_values
+    if batch_first:
+        return np.concatenate([values, filling], axis=1), output_values
+    else:
+        return np.concatenate([values, filling], axis=1).T, output_values.T
 
 
 def add_data(T, batch_size=32):
@@ -235,14 +254,14 @@ def add_data(T, batch_size=32):
     Params
     ------
 
-    T: int
+    𝑇: int
 
     batch_size: int (default 32)
 
     Returns
     -------
 
-    inputs: numpy array of float32 of size (batch_size x 2T)
+    inputs: numpy array of float32 of size (batch_size x 2𝑇)
 
     outputs: float
         The sum of the first half where the mask is on in the second half

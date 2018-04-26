@@ -30,6 +30,4 @@ if __name__ == '__main__':
 
     model = get_model(opt)
     # Train does not work yet
-    # train.train_model(model, opt)
-
-
+    train.train_model(model, opt)

@@ -4,7 +4,7 @@ from utils.argument import get_valid_fct_args
 from torch import optim
 import model
 from utils.Variable import Variable
-from data import warp_data
+from data import warp_data, to_categorical
 import torch
 
 
@@ -21,12 +21,21 @@ def dataloader(batch_size,
     """
     for batch_num in range(num_batches):
 
-        inp, outp = warp_data(seq_len,alphabet,max_repeat, uniform_warp, pad, batch_size)
+        inp, outp = warp_data(
+            seq_len,
+            alphabet,
+            max_repeat,
+            uniform_warp,
+            pad,
+            batch_size
+        )
 
+        inp = to_categorical(inp, num_classes=len(alphabet) + 1)
+        outp = to_categorical(outp, num_classes=len(alphabet) + 1)
         inp = Variable(torch.from_numpy(inp))
         outp = Variable(torch.from_numpy(outp))
 
-        yield batch_num+1, inp.float(), outp.float()
+        yield batch_num + 1, inp.float(), outp.float()
 
 
 @attrs
@@ -35,20 +44,19 @@ class TaskParams(object):
     # Model params
     model_type = attrib(default="Rnn")
     batch_size = attrib(default=1, convert=int)
-    input_size = attrib(default=1, convert=int)
+    input_size = attrib(default=11, convert=int)
     hidden_size = attrib(default=64, convert=int)
     # Optimizer params
     rmsprop_lr = attrib(default=1e-4, convert=float)
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params
-    num_batches = attrib(default=1000, convert=bool)
-    seq_len = attrib(default=10, convert=bool)
+    num_batches = attrib(default=1000, convert=int)
+    seq_len = attrib(default=10, convert=int)
     max_repeat = attrib(default=4, convert=int)
     uniform_warp = attrib(default=False, convert=bool)
-    alphabet = attrib(default=(1, 11), convert=tuple)
+    alphabet = attrib(default=range(1, 11), convert=list)
     pad = attrib(default=0, convert=int)
-
 
 
 @attrs
@@ -68,7 +76,7 @@ class TaskModelTraining(object):
 
     @criterion.default
     def default_criterion(self):
-        return nn.BCELoss()
+        return nn.CrossEntropyLoss()
 
     @optimizer.default
     def default_optimizer(self):

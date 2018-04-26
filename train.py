@@ -12,6 +12,7 @@ def train_model(model, args):
 
     num_batches = model.params.num_batches
     batch_size = model.params.batch_size
+    task = args.task
 
     LOGGER.info("Training model for %d batches (batch_size=%d)...",
                 num_batches, batch_size)
@@ -22,7 +23,7 @@ def train_model(model, args):
     start_ms = get_ms()
 
     for batch_num, x, y in model.dataloader:
-        loss = train_batch(model.net, model.criterion, model.optimizer, x, y)
+        loss = train_batch(model.net, model.criterion, model.optimizer, x, y ,task)
         losses += [loss]
         seq_lengths += [y.size(0)]
 
@@ -45,30 +46,36 @@ def train_model(model, args):
     LOGGER.info("Done training.")
 
 
-def train_batch(net, criterion, optimizer, X, Y):
+def train_batch(net, criterion, optimizer, X, Y, task):
     """Trains a single batch."""
     optimizer.zero_grad()
     inp_seq_len = X.size(0)
-    outp_seq_len, batch_size = Y.size()
+    outp_seq_len, batch_size, num_features = Y.size()
 
     # New sequence
-    net.init_sequence(batch_size)
-
-    # Feed the sequence + delimiter
-    for i in range(inp_seq_len):
-        net(X[i])
-
-    # Read the output (no input given)
-    y_out = Variable(torch.zeros(Y.size()[:2]+(net.num_outputs,)))
-    for i in range(outp_seq_len):
-        y_out[i], _ = net()
-
-    if net.multi_target:
-        loss = 0
-        for y_i, Y_i in zip(y_out, Y):
-            loss += criterion(y_i, Y_i.squeeze())
-    else:
+    # net.init_sequence(batch_size)
+    if task == 'warpTask':
+        net.create_new_state()
+        y_out = Variable(torch.zeros(outp_seq_len, batch_size, num_features))
+        for i in range(inp_seq_len):
+            y_out[i], _ = net(X[i])
         loss = criterion(y_out, Y)
+    else:
+        # Feed the sequence + delimiter
+        for i in range(inp_seq_len):
+            net(X[i])
+
+        # Read the output (no input given)
+        y_out = Variable(torch.zeros(Y.size()[:2] + (net.hidden_size,)))
+        for i in range(outp_seq_len):
+            y_out[i], _ = net()
+
+        if net.multi_target:
+            loss = 0
+            for y_i, Y_i in zip(y_out, Y):
+                loss += criterion(y_i, Y_i.squeeze())
+        else:
+            loss = criterion(y_out, Y)
 
     loss.backward()
     optimizer.step()
