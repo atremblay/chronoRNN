@@ -16,7 +16,7 @@ def parse_options():
     parser.add_argument('--model', required=True, help='Rnn | LRnn | GRnn')
     parser.add_argument('-p', '--param', action='append', default=[],
                         help='Override model params. Example: "-pbatch_size=4 -pnum_heads=2"')
-    parser.add_argument('--report_interval', default=1, type=float, help="progress bar report interval")
+    parser.add_argument('--report_interval', default=1000, type=int, help="progress bar report interval")
     parser.add_argument("--checkpoint_interval", default=1000, type=int, help="save a checkpoint every x batches")
     parser.add_argument("--checkpoint_path", default="./saves", )
     parser.add_argument("--seed", type=int, default=0, )
