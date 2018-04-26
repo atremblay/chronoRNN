@@ -52,6 +52,12 @@ class TaskModelTraining(object):
     loss_fn = per_full_sequence_loss
     forward_fn = per_full_sequence_forward
 
+    def dataloader_fn(self):
+        """
+        Creates a news dataloader generator, for when the old one is exhausted
+        """
+        return dataloader(**get_valid_fct_args(dataloader, self.params))
+
     @net.default
     def default_net(self):
         net = getattr(model, self.params.model_type)
