@@ -11,7 +11,6 @@ from data import copy_data
 import torch
 
 
-
 # Generator of randomized test sequences
 def dataloader(batch_size, num_batches,
                alphabet, dummy, eos, variable,
@@ -28,6 +27,7 @@ def dataloader(batch_size, num_batches,
         outp = torch.from_numpy(outp)
         yield batch_num + 1, inp.float(), outp.float()
 
+
 @attrs
 class TaskParams(object):
     # ALL OF THIS NEEDS TO BE CHECKED
@@ -42,13 +42,11 @@ class TaskParams(object):
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params
-    num_batches = attrib(default=1000, convert=bool)
-    seq_len = attrib(default=10, convert=bool)
+    num_batches = attrib(default=1000, convert=int)
+    seq_len = attrib(default=10, convert=int)
     max_repeat = attrib(default=4, convert=int)
-    uniform_warp = attrib(default=False, convert=bool)
-    alphabet = attrib(default=(1, 11), convert=tuple)
-    pad = attrib(default=0, convert=int)
-
+    variable = attrib(default=False, convert=bool)
+    alphabet = attrib(default=range(1, 9), convert=list)
 
 
 @attrs
