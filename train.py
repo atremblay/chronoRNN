@@ -44,6 +44,7 @@ def train_model(model, args):
             save_checkpoint(model.net, model.params.name, args,
                             batch_num, losses, costs, seq_lengths)
 
+    save_checkpoint(model.net, model.params.name, args, batch_num, losses, costs, seq_lengths)
     LOGGER.info("Done training.")
 
 
@@ -64,26 +65,9 @@ def train_batch(net, criterion, optimizer, X, Y, task):
             output, hidden_state = net(X[i])
         loss = criterion(output, Y)
 
-    """
     else:
-        outp_seq_len, batch_size = Y.size()
-        loss = Variable(torch.zeros(1))
-        # Feed the sequence + delimiter
-        for i in range(inp_seq_len):
-            net(X[i])
+        raise RuntimeError("Unsupported task type")
 
-        # Read the output (no input given)
-        y_out = Variable(torch.zeros(Y.size()[:2] + (net.hidden_size,)))
-        for i in range(outp_seq_len):
-            y_out[i], _ = net()
-
-        if net.multi_target:
-            for y_i, Y_i in zip(y_out, Y):
-                loss += criterion(y_i, Y_i.squeeze())
-        else:
-            loss += criterion(y_out, Y)
-
-    """
     loss.backward()
     optimizer.step()
 
