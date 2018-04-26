@@ -51,8 +51,10 @@ class TaskParams(object):
     seq_len = attrib(default=10, convert=int)
     variable = attrib(default=False, convert=bool)
     alphabet = attrib(default=range(1, 9), convert=list)
+    chrono = attrib(default=False, convert=bool)
     dummy = attrib(default=9, convert=int)
     eos = attrib(default=10, convert=int)
+
 
 @attrs
 class TaskModelTraining(object):
