@@ -66,13 +66,10 @@ def train_batch(net, criterion, optimizer, X, Y, task):
 
     elif task == "copyTask":
         net.create_new_state()
-        output = Variable(torch.FloatTensor(*X.size()))
-        print(X.size())
+        loss = Variable(torch.zeros(1))
         for i in range(inp_seq_len):
-            output[i], hidden_state = net(X[i])
-
-        prediction = F.log_softmax(output, dim=-1)
-        loss = criterion(prediction, Y)
+            output, hidden_state = net(X[i])
+            loss += criterion(output, Y[i])
 
     else:
         outp_seq_len, batch_size = Y.size()

@@ -31,7 +31,7 @@ def dataloader(batch_size, num_batches,
         # outp = Variable(torch.from_numpy(to_categorical(outp, num_classes=compute_input_size(alphabet))))
         outp = Variable(torch.from_numpy(outp))
 
-        yield batch_num + 1, inp, outp
+        yield batch_num + 1, inp, outp.long()
 
 
 @attrs
