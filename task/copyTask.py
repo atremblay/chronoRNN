@@ -47,6 +47,7 @@ class TaskParams(object):
     max_repeat = attrib(default=4, convert=int)
     variable = attrib(default=False, convert=bool)
     alphabet = attrib(default=range(1, 9), convert=list)
+    chrono = attrib(default=False, convert=bool)
 
 
 @attrs

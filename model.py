@@ -2,7 +2,7 @@
 # @Author: Alexis Tremblay
 # @Date:   2018-04-24 08:41:35
 # @Last Modified by:   Alexis Tremblay
-# @Last Modified time: 2018-04-26 13:24:23
+# @Last Modified time: 2018-04-26 16:28:02
 
 
 from torch.nn import Parameter
@@ -14,7 +14,7 @@ import numpy as np
 import math
 
 
-class ChronoLSTM(object):
+class ChronoLSTM(nn.Module):
     """docstring for ChronoLSTM"""
     def __init__(self, input_size, hidden_size, batch_size=32, chrono=False):
         super(ChronoLSTM, self).__init__()
@@ -35,19 +35,21 @@ class ChronoLSTM(object):
             torch.randn(1, 1, self.hidden_size) * 0.05
         )
 
+        self.linear = nn.Linear(hidden_size, input_size)
+
         self.reset_parameters()
         if chrono:
             self.chrono_bias(self.input_size)
 
-    def create_new_state(self, batch_size):
+    def create_new_state(self):
         # Dimension: (num_layers, batch, hidden_size)
-        lstm_h = self.lstm_h_bias.clone().repeat(1, batch_size, 1)
-        lstm_c = self.lstm_c_bias.clone().repeat(1, batch_size, 1)
-        return lstm_h, lstm_c
+        self.lstm_h = self.lstm_h_bias.clone().repeat(1, self.batch_size, 1)
+        self.lstm_c = self.lstm_c_bias.clone().repeat(1, self.batch_size, 1)
+        return self.lstm_h, self.lstm_c
 
     def chrono_bias(self, T):
         # Initialize the biases according to section 2 of the paper
-
+        print("Chrono initialization engaged")
         # the learnable bias of the k-th layer (b_ii|b_if|b_ig|b_io),
         # of shape (4*hidden_size)
 
@@ -58,24 +60,31 @@ class ChronoLSTM(object):
         # b_i = -b_f
         bias = np.log(np.random.uniform(1, T - 1, size=self.hidden_size))
 
-        self.b_f.data[:self.hidden_size] = -bias.copy()
-        self.b_f.data[self.hidden_size: self.hidden_size * 2] = bias
+        self.lstm.bias_ih_l0.data[:self.hidden_size] = -torch.Tensor(bias.copy())
+        self.lstm.bias_ih_l0.data[self.hidden_size: self.hidden_size * 2] = torch.Tensor(bias)
 
     def reset_parameters(self):
         for p in self.lstm.parameters():
             if p.dim() == 1:
                 nn.init.constant(p, 0)
             else:
-                stdev = 5 / (np.sqrt(self.num_inputs + self.hidden_size))
+                stdev = 5 / (np.sqrt(self.input_size + self.hidden_size))
                 nn.init.uniform(p, -stdev, stdev)
 
     def size(self):
-        return self.num_inputs, self.hidden_size
+        return self.input_size, self.hidden_size
 
-    def forward(self, x, prev_state):
+    def forward(self, x):
+
+        if x is None:
+            x = Variable(torch.zeros(self.batch_size, self.input_size))
+
         x = x.unsqueeze(0)
-        outp, state = self.lstm(x, prev_state)
-        return outp.squeeze(0), state
+        outp, (self.lstm_h, self.lstm_c) = self.lstm(x, (self.lstm_h, self.lstm_c))
+
+        o = self.linear(outp.squeeze(0))
+
+        return o.squeeze(0), (self.lstm_h, self.lstm_c)
 
 
 class ChronoLSTM2(nn.Module):
@@ -192,6 +201,7 @@ class Rnn(nn.Module):
 
         self.reset_parameters()
         self.create_new_state()
+
 
     def create_new_state(self):
         # Dimension: (num_layers * num_directions, batch, hidden_size)
