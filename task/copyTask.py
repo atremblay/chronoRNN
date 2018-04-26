@@ -10,8 +10,6 @@ import model
 from data import copy_data, to_categorical
 import torch
 from utils.Variable import Variable
-from task.taskManager import per_sequence_item_loss, per_sequence_item_forward
-
 
 def compute_input_size(alphabet):
     return len(alphabet) + 3
@@ -61,8 +59,22 @@ class TaskParams(object):
 class TaskModelTraining(object):
     params = attrib(default=Factory(TaskParams))
     net, dataloader, criterion, optimizer = attrib(), attrib(), attrib(), attrib()
-    loss_fn = per_sequence_item_loss
-    forward_fn = per_sequence_item_forward
+
+    @staticmethod
+    def loss_fn(net, X, Y, criterion):
+        loss = Variable(torch.zeros(1))
+        net.create_new_state()
+        for i in range(X.size(0)):
+            loss += criterion(net(X[i])[0], Y[i])
+        return loss
+
+    @staticmethod
+    def forward_fn(net, X, ):
+        net.create_new_state()
+        outputs = []  # The outputs can be of a variable size.
+        for i in range(X.size(0)):
+            outputs.append(net(X[i])[0])
+        return outputs
 
     def dataloader_fn(self):
         """
