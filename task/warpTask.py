@@ -60,6 +60,7 @@ class TaskParams(object):
     chrono = attrib(default=False, convert=bool)
     gated = attrib(default=False, convert=bool)
 
+
 @attrs
 class TaskModelTraining(object):
     params = attrib(default=Factory(TaskParams))

@@ -2,7 +2,7 @@
 # @Author: Alexis Tremblay
 # @Date:   2018-04-24 08:41:35
 # @Last Modified by:   Alexis Tremblay
-# @Last Modified time: 2018-04-26 16:28:02
+# @Last Modified time: 2018-04-26 16:32:21
 
 
 from torch.nn import Parameter
@@ -182,6 +182,8 @@ class Rnn(nn.Module):
         self.hidden_size = hidden_size
         self.batch_size = batch_size
         self.gated = gated
+        if gated:
+            print("Gating engaged")
 
         # Hidden state
         self.w_xh = Parameter(torch.Tensor(input_size, hidden_size))
@@ -201,7 +203,6 @@ class Rnn(nn.Module):
 
         self.reset_parameters()
         self.create_new_state()
-
 
     def create_new_state(self):
         # Dimension: (num_layers * num_directions, batch, hidden_size)

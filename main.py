@@ -13,7 +13,6 @@ def parse_options():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--task', required=True, help='warpTask | addTask | copyTask')
-    parser.add_argument('--model', required=True, help='Rnn | LRnn | GRnn')
     parser.add_argument('-p', '--param', action='append', default=[],
                         help='Override model params. Example: "-pbatch_size=4 -pnum_heads=2"')
     parser.add_argument('--report_interval', default=1000, type=int, help="progress bar report interval")
