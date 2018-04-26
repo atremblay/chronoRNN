@@ -34,7 +34,7 @@ class TaskParams(object):
     model_type = attrib(default="Rnn")
     batch_size = attrib(default=1, convert=int)
     input_size = attrib(default=1, convert=int)
-    hidden_size = attrib(default=64, convert=int)
+    hidden_size = attrib(default=128, convert=int)
     # Optimizer params
     rmsprop_lr = attrib(default=1e-4, convert=float)
     rmsprop_momentum = attrib(default=0.9, convert=float)

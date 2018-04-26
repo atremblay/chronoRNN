@@ -152,11 +152,11 @@ def warp_data(
 
 def copy_data(
     T,
-    alphabet=range(1, 9),
-    dummy=9,
-    eos=10,
-    batch_size=32,
-    variable=False,
+    alphabet,
+    dummy,
+    eos,
+    batch_size,
+    variable,
     batch_first=False
 ):
     """
@@ -241,7 +241,7 @@ def copy_data(
         return np.concatenate([values, filling], axis=1).T, output_values.T
 
 
-def add_data(T, batch_size=32):
+def add_data(T, batch_size):
     """
     Each training example consists of two input sequences of length 𝑇.
     The first one is a sequence of numbers drawn from 𝒰 ([0, 1]), the second

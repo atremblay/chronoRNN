@@ -41,14 +41,14 @@ class TaskParams(object):
     name = attrib(default="copyTask")
     # Model params
     model_type = attrib(default="Rnn")
-    hidden_size = attrib(default=64, convert=int)
+    hidden_size = attrib(default=128, convert=int)
     # Optimizer params
     rmsprop_lr = attrib(default=1e-4, convert=float)
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params
     num_batches = attrib(default=1000, convert=int)
-    seq_len = attrib(default=10, convert=int)
+    seq_len = attrib(default=500, convert=int)
     variable = attrib(default=False, convert=bool)
     alphabet = attrib(default=range(1, 9), convert=list)
     chrono = attrib(default=False, convert=bool)
