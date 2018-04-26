@@ -2,7 +2,7 @@
 # @Author: Alexis Tremblay
 # @Date:   2018-04-24 08:41:35
 # @Last Modified by:   Alexis Tremblay
-# @Last Modified time: 2018-04-24 13:17:28
+# @Last Modified time: 2018-04-26 13:24:23
 
 
 from torch.nn import Parameter
@@ -185,10 +185,19 @@ class Rnn(nn.Module):
         self.b_g = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
 
         # The hidden state is a learned parameter
-        self.h = Parameter(torch.Tensor(hidden_size)).repeat(batch_size, 1)
-        self.g = Parameter(torch.Tensor(hidden_size)).repeat(batch_size, 1)
+        self.h_ = Parameter(torch.Tensor(1, hidden_size))
+        self.g_ = Parameter(torch.Tensor(1, hidden_size))
+
+        self.linear = nn.Linear(hidden_size, input_size)
 
         self.reset_parameters()
+        self.create_new_state()
+
+    def create_new_state(self):
+        # Dimension: (num_layers * num_directions, batch, hidden_size)
+        self.h = self.h_.clone().repeat(self.batch_size, 1)
+        self.g = self.g_.clone().repeat(self.batch_size, 1)
+        return self.h, self.g
 
     def reset_parameters(self):
         stdv = 1.0 / math.sqrt(self.hidden_size)
@@ -196,11 +205,11 @@ class Rnn(nn.Module):
             weight.data.uniform_(-stdv, stdv)
 
     def size(self):
-        return self.num_inputs, self.hidden_size
+        return self.input_size, self.hidden_size
 
     def forward(self, x=None):
         if x is None:
-            x = Variable(torch.zeros(self.batch_size, self.num_inputs))
+            x = Variable(torch.zeros(self.batch_size, self.input_size))
 
         (h, g) = self.h, self.g
 
@@ -212,13 +221,16 @@ class Rnn(nn.Module):
             self.h = g * F.tanh(
                 torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
             ) + (1 - g) * h
+            # Output
+            o = self.linear(self.h)
 
             # Current state
             state = (self.h, self.g)
-            return self.h, state
+            return o, state
         else:
             # Hidden state
             self.h = F.tanh(
                 torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
             )
-            return self.h
+            o = self.linear(self.h)
+            return o, self.h
