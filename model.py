@@ -81,7 +81,7 @@ class ChronoLSTM(object):
 class ChronoLSTM2(nn.Module):
     """A chrono LSTM implementation"""
     def __init__(self, input_size, hidden_size, batch_size=32):
-        super(ChronoLSTM, self).__init__()
+        super(ChronoLSTM2, self).__init__()
 
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -164,10 +164,10 @@ class ChronoLSTM2(nn.Module):
         return self.h, state
 
 
-class RNN(nn.Module):
-    """A vanilla RNN implementation with a gated option"""
+class Rnn(nn.Module):
+    """A vanilla Rnn implementation with a gated option"""
     def __init__(self, input_size, hidden_size, batch_size=32, gated=False):
-        super(RNN, self).__init__()
+        super(Rnn, self).__init__()
 
         self.input_size = input_size
         self.hidden_size = hidden_size

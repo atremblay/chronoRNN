@@ -72,7 +72,7 @@ def warp(sequence, max_repeat=4, uniform_warp=False, pad=0):
 
 def warp_data(
     T,
-    alphabet=range(1, 11),
+    alphabet=(1, 11),
     max_repeat=4,
     uniform_warp=False,
     pad=0,
@@ -116,6 +116,7 @@ def warp_data(
 
     # This gives n-1 list of elements with the i-th element removed
     # This is to avoid consecutive repeating elements
+    alphabet = range(*alphabet)
     indexes = range(len(alphabet))
 
     idx_to_choose = list(
@@ -140,7 +141,7 @@ def warp_data(
 
 def copy_data(
     T,
-    alphabet=range(1, 9),
+    alphabet=(1, 9),
     dummy=9,
     eos=10,
     batch_size=32,
@@ -199,6 +200,7 @@ def copy_data(
         𝑇 + 10 dummy characters, followed by the first 10 characters of the
         input
     """
+    alphabet = range(*alphabet)
     sequences = np.random.choice(alphabet, size=(batch_size, 10))
     dummies = np.ones(shape=(batch_size, T - 1)) * dummy
     signal = np.ones(shape=(batch_size, 1)) * eos
@@ -292,5 +294,4 @@ def to_categorical(y, num_classes=None):
     output_shape = input_shape + (num_classes,)
     categorical = np.reshape(categorical, output_shape)
     return categorical
-
 
