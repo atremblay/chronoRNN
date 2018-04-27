@@ -9,6 +9,7 @@ from data import add_data
 import torch
 from utils.Variable import Variable
 
+
 # Generator of randomized test sequences
 def dataloader(batch_size,
                num_batches,
@@ -63,7 +64,6 @@ class TaskModelTraining(object):
         for i in range(X.size(0)):
             output, hidden_state = net(X[i])
         return output
-
 
     def dataloader_fn(self):
         """
