@@ -14,13 +14,11 @@ def dataloader(batch_size,
                num_batches,
                seq_len,
                ):
-    """Generator of random sequences for the add task.
-
+    """
+    Generator of random sequences for the add task.
     """
     for batch_num in range(num_batches):
-
         inp, outp = add_data(seq_len, batch_size)
-
         inp = Variable(torch.from_numpy(inp))
         outp = Variable(torch.from_numpy(outp))
         yield batch_num + 1, inp.float().unsqueeze(-1).permute(1, 0, 2), outp.float()
@@ -40,10 +38,8 @@ class TaskParams(object):
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params
-    num_batches = attrib(default=1000, convert=int)
+    num_batches = attrib(default=1000000, convert=int)
     seq_len = attrib(default=10, convert=int)
-
-
 
 
 @attrs

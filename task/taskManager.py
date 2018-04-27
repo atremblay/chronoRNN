@@ -2,6 +2,7 @@ import logging
 import re
 import sys
 import attr
+from utils.Variable import maybe_cuda
 LOGGER = logging.getLogger(__name__)
 
 
@@ -16,7 +17,7 @@ def get_model(opt):
     params = update_model_params(params, opt.param)
 
     model = model_cls(params=params)
-
+    model.net = maybe_cuda(model.net)
     LOGGER.info(params)
 
     return model
