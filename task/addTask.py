@@ -4,17 +4,14 @@ from attr import attrs, attrib, Factory
 from torch import nn
 from utils.argument import get_valid_fct_args
 from torch import optim
-import model
+import models
 from data import add_data
 import torch
 from utils.Variable import Variable
 
 
 # Generator of randomized test sequences
-def dataloader(batch_size,
-               num_batches,
-               seq_len,
-               ):
+def dataloader(batch_size, num_batches, seq_len):
     """
     Generator of random sequences for the add task.
     """
@@ -73,7 +70,7 @@ class TaskModelTraining(object):
 
     @net.default
     def default_net(self):
-        net = getattr(model, self.params.model_type)
+        net = getattr(models, self.params.model_type)
         net = net(**get_valid_fct_args(net.__init__, self.params))
         return net
 

@@ -2,11 +2,10 @@ from attr import attrs, attrib, Factory
 from torch import nn
 from utils.argument import get_valid_fct_args
 from torch import optim
-import model
 from utils.Variable import Variable
 from data import warp_data, to_categorical
 import torch
-
+import models
 
 def compute_input_size(alphabet):
     return len(alphabet) + 1
@@ -69,7 +68,6 @@ class TaskModelTraining(object):
     params = attrib(default=Factory(TaskParams))
     net, dataloader, criterion, optimizer = attrib(), attrib(), attrib(), attrib()
 
-
     @staticmethod
     def loss_fn(net, X, Y, criterion):
         loss = Variable(torch.zeros(1))
@@ -86,7 +84,6 @@ class TaskModelTraining(object):
             outputs.append(net(X[i])[0])
         return outputs
 
-
     def dataloader_fn(self):
         """
         Creates a news dataloader generator, for when the old one is exhausted
@@ -96,7 +93,7 @@ class TaskModelTraining(object):
     @net.default
     def default_net(self):
         self.params.input_size = compute_input_size(self.params.alphabet)
-        net = getattr(model, self.params.model_type)
+        net = getattr(models, self.params.model_type)
         net = net(**get_valid_fct_args(net.__init__, self.params))
         return net
 

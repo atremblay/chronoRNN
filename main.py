@@ -1,3 +1,4 @@
+import sys
 import argparse
 import train
 import logging
@@ -5,9 +6,10 @@ from pathlib import Path
 from task.taskManager import get_model
 
 POSSIBLE_TASKS = {"warpTask", "addTask", "copyTask"}
-POSSIBLE_MODELS = {'ChronoLSTM', 'ChronoLSTM2', 'Rnn'}
+POSSIBLE_MODELS = {"ChronoLSTM", "Rnn"}
 
 LOGGER = logging.getLogger(__name__)
+
 
 def init_logging(level):
     logging.basicConfig(format='[%(asctime)s] [%(levelname)s] [%(name)s]  %(message)s',
@@ -50,7 +52,7 @@ def validate_arguments(opt):
         f"Got '{opt.log_level}', of the type '{type(opt.log_level)}'.")
 
 
-def parse_options():
+def parse_options(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--task', required=True, help=" | ".join(POSSIBLE_TASKS))
     parser.add_argument('-p', '--param', action='append', default=[],
@@ -61,15 +63,19 @@ def parse_options():
     parser.add_argument("--checkpoint_path", default="./saves", type=Path)
     parser.add_argument("--seed", type=int, default=0, )
     parser.add_argument("--log_level", type=int, default=logging.DEBUG,)
-    opt = parser.parse_args()
+    opt = parser.parse_args(argv)
     validate_arguments(opt)
     return opt
 
 
-if __name__ == '__main__':
-    opt = parse_options()
+def main(argv):
+    opt = parse_options(argv)
     init_logging(opt.log_level)
     display_arguments(opt)
     model = get_model(opt)
     # Train does not work yet
     train.train_model(model, opt)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

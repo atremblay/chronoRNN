@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-# @Author: Jules Gagnon-Marchand
-
-
 from attr import attrs, attrib, Factory
 from torch import nn
 from utils.argument import get_valid_fct_args
 from torch import optim
-import model
+import models
 from data import copy_data, to_categorical
 import torch
 from utils.Variable import Variable
+
 
 def compute_input_size(alphabet):
     return len(alphabet) + 3
@@ -82,7 +80,7 @@ class TaskModelTraining(object):
 
     @net.default
     def default_net(self):
-        net = getattr(model, self.params.model_type)
+        net = getattr(models, self.params.model_type)
         self.params.input_size = compute_input_size(self.params.alphabet)
         net = net(**get_valid_fct_args(net.__init__, self.params))
         return net
