@@ -64,7 +64,7 @@ def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths, argu
     checkpoint_path = Path(args.checkpoint_path)
     assert checkpoint_path.exists(), f"You need to create {checkpoint_path}"
 
-    basename = "{}/{}-{}-batch-{}".format(checkpoint_path, name, args.seed, batch_num)
+    basename = f"{checkpoint_path}/{name}-{net.__class__.__name__}-batch-{batch_num}-seed-{args.seed}"
 
     # Save the training history
     train_fname = basename + ".json"
