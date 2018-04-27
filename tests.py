@@ -3,10 +3,10 @@ from pathlib import Path
 import datetime
 import logging
 
-NUM_BATCHES = 100
+NUM_BATCHES = 16
 CHECKPOINT_INTERVAL = NUM_BATCHES // 2
 REPORT_INTERVAL = NUM_BATCHES // 2
-BATCH_SIZE = 4
+BATCH_SIZE = 2
 LOG_LEVEL = logging.WARNING
 
 folder = Path("test_logs")
