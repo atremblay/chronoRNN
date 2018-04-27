@@ -15,8 +15,8 @@ with open(folder/f"{timestamp}.log", "w") as f:
                   "-pnum_batches=100", "-pbatch_size=2",
                   "--checkpoint_interval", "50", "--report_interval", "50"])
                 message = f"SUCCESS - Task: {task}, Model: {model}"
-                f.write(message)
+                f.write(message + "\n")
             except Exception as err:
                 message = f"FAILED - Task: {task}, Model: {model}, Error: '{vars(err)}'"
-                print(message)
+                print(message + "\n")
                 f.write(f"FAILED - Task: {task}, Model: {model}, Error: '{vars(err)}'")
