@@ -19,15 +19,13 @@ def compute_input_size(alphabet):
 def dataloader(batch_size, num_batches,
                alphabet, dummy, eos, variable, seq_len,
                ):
-    """Generator of random sequences for the add task.
-
+    """
+    Generator of random sequences for the add task.
     """
     for batch_num in range(num_batches):
         inp, outp = copy_data(alphabet=alphabet, dummy=dummy, eos=eos,
                               batch_size=batch_size, variable=variable, T=seq_len)
-
         inp = Variable(torch.from_numpy(to_categorical(inp, num_classes=compute_input_size(alphabet))))
-        # outp = Variable(torch.from_numpy(to_categorical(outp, num_classes=compute_input_size(alphabet))))
         outp = Variable(torch.from_numpy(outp))
 
         yield batch_num + 1, inp, outp.long()

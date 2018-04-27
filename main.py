@@ -1,11 +1,13 @@
 import argparse
-from task.taskManager import get_model
 import train
 import logging
 from pathlib import Path
-POSSIBLE_TASKS = {"warpTask", "addTask", "copyTask"}
-LOGGER = logging.getLogger(__name__)
+from task.taskManager import get_model
 
+POSSIBLE_TASKS = {"warpTask", "addTask", "copyTask"}
+POSSIBLE_MODELS = {'ChronoLSTM', 'ChronoLSTM2', 'Rnn'}
+
+LOGGER = logging.getLogger(__name__)
 
 def init_logging(level):
     logging.basicConfig(format='[%(asctime)s] [%(levelname)s] [%(name)s]  %(message)s',
@@ -19,9 +21,18 @@ def display_arguments(opt):
     LOGGER.debug(f"\nCommand-line arguments:\n{joined_opt}\n")
 
 
+def parse_param(param):
+    splitted = (x.split("=") for x in param)
+    return {y[0]: y[1] for y in splitted}
+
+
 def validate_arguments(opt):
-    assert opt.task in POSSIBLE_TASKS, (f"Got a value for --task '{opt.task}' that is not in " 
-                                        f"the set of acceptable ones, {POSSIBLE_TASKS}")
+    param = parse_param(opt.param)
+    if "model_type" in param:
+        assert param["model_type"] in POSSIBLE_MODELS, (f"Got -pmodel_type '{param['model_type']}', " 
+                                                        f"expected one of {POSSIBLE_MODELS}")
+
+    assert opt.task in POSSIBLE_TASKS, f"Got --task '{opt.task}', expected one of {POSSIBLE_TASKS}"
     assert opt.report_interval > 0, (f"opt.report_interval needs to be a non-zero positive int," 
                                      f" got '{opt.checkpoint_interval}'")
     assert opt.checkpoint_interval >= 0, (f"opt.checkpoint_interval needs to be a positive int," 
