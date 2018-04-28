@@ -2,8 +2,9 @@ from main import main, POSSIBLE_MODELS, POSSIBLE_TASKS
 from pathlib import Path
 import datetime
 import logging
+import traceback
 
-NUM_BATCHES = 16
+NUM_BATCHES = 6
 CHECKPOINT_INTERVAL = NUM_BATCHES // 2
 REPORT_INTERVAL = NUM_BATCHES // 2
 BATCH_SIZE = 2
@@ -25,6 +26,7 @@ with open(folder/f"{timestamp}.log", "w") as f:
                 print(message)
                 f.write(message + "\n")
             except Exception as err:
-                message = f"FAILED - Task: {task + ',':10} Model: {model}, Error: '{vars(err)}'"
+                message = (f"FAILED -  Task: {task + ',':10} Model: {model},  Error: \"{err.__class__.__name__}: {err}\""
+                           f"\nStacktrace:\n\"\n{traceback.format_exc()}\"")
                 print(message + "\n")
                 f.write(message)
