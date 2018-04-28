@@ -10,7 +10,7 @@ import numpy as np
 from itertools import combinations
 
 
-def warp(sequence, max_repeat=4, uniform_warp=False, pad=0):
+def warp(sequence, max_repeat=4, uniform_warp=False, padding_mode=False, pad=0):
     """
     Warp a sequence of elements either of random warp or a uniform one. It also
     creates a warped output based on the sequence but shifted by one place.
@@ -59,12 +59,19 @@ def warp(sequence, max_repeat=4, uniform_warp=False, pad=0):
             repeat = max_repeat
         else:
             repeat = random.randint(1, max_repeat)
-        warped_input.extend([c] * repeat)
+
+        if padding_mode:
+            warped_input.append(c)
+            warped_input.extend([pad] * (repeat-1))
+        else:
+            warped_input.extend([c] * repeat)
+
         if i == 0:
-            # insert spaces if this is the first caracter of the sequence
+            # insert spaces if this is the first character of the sequence
             target.extend([pad] * repeat)
         else:
             target.extend([prev_c] * repeat)
+
         prev_c = c
 
     return warped_input, target
@@ -75,6 +82,7 @@ def warp_data(
     alphabet=range(1, 11),
     max_repeat=4,
     uniform_warp=False,
+    padding_mode=False,
     pad=0,
     batch_size=32,
     batch_first=False
@@ -139,7 +147,7 @@ def warp_data(
             idx = random.choice(idx_to_choose[idx])
             sequence.append(alphabet[idx])
 
-        warped_input, target = warp(sequence, max_repeat, uniform_warp, pad)
+        warped_input, target = warp(sequence, max_repeat, uniform_warp, padding_mode, pad)
         inputs.append(warped_input[:T])
         targets.append(target[:T])
         sequences.append(sequence)

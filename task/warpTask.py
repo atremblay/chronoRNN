@@ -22,6 +22,7 @@ def dataloader(batch_size,
                max_repeat,
                uniform_warp,
                alphabet,
+               padding_mode,
                pad):
     """Generator of random sequences for the warp task.
 
@@ -34,6 +35,7 @@ def dataloader(batch_size,
             alphabet,
             max_repeat,
             uniform_warp,
+            padding_mode,
             pad,
             batch_size
         )
@@ -72,6 +74,7 @@ class TaskParams(object):
     uniform_warp = attrib(default=False, convert=bool)
     alphabet = attrib(default=range(1, 11), convert=list)
     pad = attrib(default=0, convert=int)
+    padding_mode = attrib(default=False, convert=bool)
     chrono = attrib(default=False, convert=bool)
     gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
