@@ -74,7 +74,7 @@ def main(argv):
     display_arguments(opt)
     model = get_model(opt)
     # Train does not work yet
-    train.train_model(model, opt)
+    train.train(model, opt)
 
 
 if __name__ == '__main__':

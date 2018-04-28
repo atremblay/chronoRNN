@@ -9,10 +9,10 @@ from torch.nn import functional as F
 LOGGER = logging.getLogger(__name__)
 
 
-def train_model(model, args):
+def train(task, args):
 
-    num_batches = model.params.num_batches
-    batch_size = model.params.batch_size
+    num_batches = task.params.num_batches
+    batch_size = task.params.batch_size
 
     LOGGER.info("Training model for %d batches (batch_size=%d)...",
                 num_batches, batch_size)
@@ -21,9 +21,14 @@ def train_model(model, args):
     costs = []
     seq_lengths = []
     start_ms = get_ms()
+    scheduler = None
+    if hasattr(task.__class__, "make_scheduler"):
+        scheduler = task.__class__.make_scheduler(task.optimizer)
 
-    for batch_num, x, y in model.dataloader:
-        loss = train_batch(model.net, model.criterion, model.optimizer, x, y, model.__class__.loss_fn)
+    for batch_num, x, y in task.dataloader:
+        loss = train_batch(task.net, task.criterion, task.optimizer, x, y, task.__class__.loss_fn)
+        if scheduler:
+            scheduler.step(loss)
         losses += [loss]
         seq_lengths += [y.size(0)]
 
@@ -40,11 +45,11 @@ def train_model(model, args):
 
         # Checkpoint
         if (args.checkpoint_interval != 0) and (batch_num % args.checkpoint_interval == 0):
-            save_checkpoint(model.net, model.params.name, args,
+            save_checkpoint(task.net, task.params.name, args,
                             batch_num, losses, costs, seq_lengths,
-                            args, model)
+                            args, task)
 
-    save_checkpoint(model.net, model.params.name, args, batch_num, losses, costs, seq_lengths, args, model)
+    save_checkpoint(task.net, task.params.name, args, batch_num, losses, costs, seq_lengths, args, task)
     LOGGER.info("Done training.")
 
 

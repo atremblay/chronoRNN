@@ -5,6 +5,7 @@ from torch import optim
 from utils.Variable import Variable
 from data import warp_data, to_categorical
 import torch
+
 import models
 
 def compute_input_size(alphabet):
@@ -46,7 +47,7 @@ class TaskParams(object):
     name = attrib(default="warpTask")
     # Model params
     model_type = attrib(default="Rnn")
-    batch_size = attrib(default=1, convert=int)
+    batch_size = attrib(default=32, convert=int)
     hidden_size = attrib(default=64, convert=int)
     # Optimizer params
     rmsprop_lr = attrib(default=1e-4, convert=float)
@@ -112,4 +113,8 @@ class TaskModelTraining(object):
                              momentum=self.params.rmsprop_momentum,
                              alpha=self.params.rmsprop_alpha,
                              lr=self.params.rmsprop_lr)
+    @staticmethod
+    def make_scheduler(optim):
+        # "learning rates are divided by 2 each time the evaluation loss has not decreased after 100 batches" - p.8
+        return torch.optim.lr_scheduler.ReduceLROnPlateau(optim, patience=100, factor=0.5)
 
