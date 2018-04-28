@@ -63,9 +63,6 @@ class Rnn(nn.Module):
             else:
                 weight.data.uniform_(-stdv, stdv)
 
-
-
-
     def size(self):
         return self.input_size, self.hidden_size
 

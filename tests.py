@@ -4,12 +4,14 @@ import datetime
 import logging
 import traceback
 import collections
+import time
 
-NUM_BATCHES = 6
+NUM_BATCHES = 1000 #6
 CHECKPOINT_INTERVAL = NUM_BATCHES // 2
 REPORT_INTERVAL = NUM_BATCHES // 2
 BATCH_SIZE = 2
 LOG_LEVEL = logging.WARNING
+SEED = int(time.time())
 
 # For each mode, we iterate on different combinations of options to try.
 # So, for each mode, we have a list of lists of options. Each list in the list is a combination of option to try.
@@ -17,7 +19,7 @@ MODEL_MODES = {"Rnn": [[],
                        ["-pgated=True"],
                        ["-pleaky=True"],
                        ], # the empty string is to also test the default
-               "ChronoLSTM": [[], # Eventually this will be for the chrono bias and the regular bias
+               "ChronoLSTM": [[] # Eventually this will be for the chrono bias and the regular bias
                               ]}
 
 
@@ -33,7 +35,8 @@ with open(folder/f"{timestamp}.log", "w") as f:
                                f"-pnum_batches={NUM_BATCHES}", f"-pbatch_size={BATCH_SIZE}",
                                "--checkpoint_interval", str(CHECKPOINT_INTERVAL),
                                "--report_interval", str(REPORT_INTERVAL),
-                               "--log_level", str(LOG_LEVEL),]
+                               "--log_level", str(LOG_LEVEL),
+                               "--seed", str(SEED)]
                     if mode_options:
                         command.extend(mode_options)
 

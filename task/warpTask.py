@@ -7,6 +7,7 @@ from data import warp_data, to_categorical
 import torch
 
 import models
+from utils.varia import hasnan
 
 def compute_input_size(alphabet):
     return len(alphabet) + 1
@@ -76,6 +77,7 @@ class TaskModelTraining(object):
         net.create_new_state()
         for i in range(X.size(0)):
             loss += criterion(net(X[i])[0], Y[i])
+        assert not hasnan(loss)
         return loss
 
     @staticmethod

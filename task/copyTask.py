@@ -7,7 +7,7 @@ import models
 from data import copy_data, to_categorical
 import torch
 from utils.Variable import Variable
-
+from utils.varia import hasnan
 
 def compute_input_size(alphabet):
     return len(alphabet) + 3
@@ -63,6 +63,7 @@ class TaskModelTraining(object):
         net.create_new_state()
         for i in range(X.size(0)):
             loss += criterion(net(X[i])[0], Y[i])
+        assert not hasnan(loss)
         return loss
 
     @staticmethod

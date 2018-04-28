@@ -8,7 +8,10 @@ import models
 from data import add_data
 import torch
 from utils.Variable import Variable
+import logging
+LOGGER = logging.getLogger(__name__)
 
+from utils.varia import hasnan
 
 # Generator of randomized test sequences
 def dataloader(batch_size, num_batches, seq_len):
@@ -53,6 +56,7 @@ class TaskModelTraining(object):
         for i in range(X.size(0)):
             output, hidden_state = net(X[i])
         loss = criterion(output, Y)
+        assert not hasnan(loss)
         return loss
 
     @staticmethod
