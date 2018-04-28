@@ -9,6 +9,7 @@ import torch
 import models
 from utils.varia import hasnan
 
+
 def compute_input_size(alphabet):
     return len(alphabet) + 1
 
