@@ -75,13 +75,13 @@ def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths, mode
 
     parsed = parse_param(args.param)
     if parsed.get("gated", False):
-        modifier = "gated"
+        modifier = "gated_RNN"
     elif parsed.get("leaky"):
-        modifier = "leaky"
+        modifier = "leaky_RNN"
     elif parsed.get("chrono"):
         modifier = "chrono"
     else:
-        modifier = "vanilla"
+        modifier = "RNN"
 
     basename = f"{checkpoint_path}/{name}-{net.__class__.__name__}-{modifier}-seq_len-{model.params.seq_len}-batch-{batch_num}-seed-{args.seed}_{args.run_instance}"
 
