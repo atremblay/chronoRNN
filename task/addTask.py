@@ -43,7 +43,7 @@ class TaskParams(object):
     seq_len = attrib(default=10, convert=int)
     leaky = attrib(default=False, convert=bool)  # it's very important that this remains False by default
     gated = attrib(default=False, convert=bool)  # it's very important that this remains False by default
-
+    chrono = attrib(default=False, convert=bool)
 
 @attrs
 class TaskModelTraining(object):

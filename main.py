@@ -4,9 +4,10 @@ import train
 import logging
 from pathlib import Path
 from task.taskManager import get_model
+from utils.varia import parse_param
 
 POSSIBLE_TASKS = {"warpTask", "addTask", "copyTask"}
-POSSIBLE_MODELS = {"ChronoLSTM", "Rnn"}
+POSSIBLE_MODELS = {"LSTM", "Rnn"}
 
 LOGGER = logging.getLogger(__name__)
 
@@ -21,11 +22,6 @@ def display_arguments(opt):
     formatted_opt = [f"\t- {k + ' :':23} {v}" for k, v in opt_dict.items()]
     joined_opt = "\n".join(formatted_opt)
     LOGGER.debug(f"\nCommand-line arguments:\n{joined_opt}\n")
-
-
-def parse_param(param):
-    splitted = (x.split("=") for x in param)
-    return {y[0]: y[1] for y in splitted}
 
 
 def validate_arguments(opt):

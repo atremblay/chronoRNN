@@ -1,2 +1,2 @@
-from .chono_lstm import ChronoLSTM
+from .lstm import LSTM
 from .rnn import Rnn

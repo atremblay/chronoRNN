@@ -51,7 +51,8 @@ class TaskParams(object):
     eos = attrib(default=10, convert=int)
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
     gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
-
+    chrono = attrib(default=False, convert=bool)
+    
 @attrs
 class TaskModelTraining(object):
     params = attrib(default=Factory(TaskParams))

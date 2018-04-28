@@ -5,7 +5,7 @@ import torch
 import json
 import logging
 from pathlib import Path
-from main import parse_param
+from utils.varia import parse_param
 from torch.nn import functional as F
 LOGGER = logging.getLogger(__name__)
 

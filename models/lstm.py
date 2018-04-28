@@ -5,13 +5,14 @@ import torch
 import numpy as np
 
 
-class ChronoLSTM(nn.Module):
+class LSTM(nn.Module):
     """docstring for ChronoLSTM"""
     def __init__(self, input_size, hidden_size, batch_size, chrono=False):
-        super(ChronoLSTM, self).__init__()
+        super(LSTM, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.batch_size = batch_size
+        self.chrono = chrono
 
         self.lstm = nn.LSTM(
             input_size=input_size,
@@ -20,8 +21,6 @@ class ChronoLSTM(nn.Module):
 
         self.linear = nn.Linear(hidden_size, input_size)
         self.reset_parameters()
-        if chrono:
-            self.chrono_bias(self.input_size)
 
     def create_new_state(self):
         # Dimension: (num_layers, batch, hidden_size)
@@ -52,6 +51,26 @@ class ChronoLSTM(nn.Module):
             else:
                 stdev = 5 / (np.sqrt(self.input_size + self.hidden_size))
                 nn.init.uniform(p, -stdev, stdev)
+
+        #############
+        # Set the bias of the input gates to 1.
+        # Explanation:
+        #  "the ordering of weights a biases is the same for all implementations and is ingate, forgetgate,
+        #   cellgate, outgate. You need to initialize the values between 1/4 and 1/2 of
+        #   the bias vector to the desired value."
+        #    - https://github.com/pytorch/pytorch/issues/750
+        # Code taken from:
+        #  https://discuss.pytorch.org/t/set-forget-gate-bias-of-lstm/1745/4
+        #############
+        for names in self.lstm._all_weights:
+            for name in filter(lambda n: "bias" in n, names):
+                bias = getattr(self.lstm, name)
+                n = bias.size(0)
+                start, end = n // 4, n // 2
+                bias.data[start:end].fill_(1.)
+
+        if self.chrono:
+            self.chrono_bias(self.input_size)
 
     def size(self):
         return self.input_size, self.hidden_size

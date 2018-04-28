@@ -6,7 +6,7 @@ import traceback
 import collections
 import time
 
-NUM_BATCHES = 200 #6
+NUM_BATCHES = 10 #6
 CHECKPOINT_INTERVAL = NUM_BATCHES // 2
 REPORT_INTERVAL = NUM_BATCHES // 2
 BATCH_SIZE = 2
@@ -19,8 +19,9 @@ MODEL_MODES = {"Rnn": [[],
                        ["-pgated=True"],
                        ["-pleaky=True"],
                        ], # the empty string is to also test the default
-               "ChronoLSTM": [[] # Eventually this will be for the chrono bias and the regular bias
-                              ]}
+               "LSTM": [[],
+                        ["-pchrono=True"],
+                        ]}
 
 
 folder = Path("test_logs")
