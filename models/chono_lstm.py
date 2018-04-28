@@ -18,14 +18,6 @@ class ChronoLSTM(nn.Module):
             hidden_size=hidden_size
         )
 
-        # The hidden state is a learned parameter
-        self.lstm_h_bias = Parameter(
-            torch.randn(1, 1, self.hidden_size) * 0.05
-        )
-        self.lstm_c_bias = Parameter(
-            torch.randn(1, 1, self.hidden_size) * 0.05
-        )
-
         self.linear = nn.Linear(hidden_size, input_size)
 
         self.reset_parameters()
@@ -34,9 +26,9 @@ class ChronoLSTM(nn.Module):
 
     def create_new_state(self):
         # Dimension: (num_layers, batch, hidden_size)
-        self.lstm_h = self.lstm_h_bias.clone().repeat(1, self.batch_size, 1)
-        self.lstm_c = self.lstm_c_bias.clone().repeat(1, self.batch_size, 1)
-        return self.lstm_h, self.lstm_c
+        lstm_h = Variable(torch.zeros(1, self.batch_size, self.hidden_size))
+        lstm_c = Variable(torch.zeros(1, self.batch_size, self.hidden_size))
+        return lstm_h, lstm_c
 
     def chrono_bias(self, T):
         # Initialize the biases according to section 2 of the paper
@@ -66,14 +58,14 @@ class ChronoLSTM(nn.Module):
     def size(self):
         return self.input_size, self.hidden_size
 
-    def forward(self, x):
-
+    def forward(self, x, state):
+        lstm_h, lstm_c = state
         if x is None:
             x = Variable(torch.zeros(self.batch_size, self.input_size))
 
         x = x.unsqueeze(0)
-        outp, (self.lstm_h, self.lstm_c) = self.lstm(x, (self.lstm_h, self.lstm_c))
+        outp, (lstm_h, lstm_c) = self.lstm(x, (lstm_h, lstm_c))
 
         o = self.linear(outp.squeeze(0))
 
-        return o.squeeze(0), (self.lstm_h, self.lstm_c)
+        return o.squeeze(0), (lstm_h, lstm_c)

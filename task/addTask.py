@@ -51,20 +51,20 @@ class TaskModelTraining(object):
 
     @staticmethod
     def loss_fn(net, X, Y, criterion):
-        net.create_new_state()
+        state = net.create_new_state()
         output = None
         for i in range(X.size(0)):
-            output, hidden_state = net(X[i])
+            output, hidden_state = net(X[i], state)
         loss = criterion(output, Y)
         assert not hasnan(loss)
         return loss
 
     @staticmethod
     def forward_fn(net, X):
-        net.create_new_state()
+        state = net.create_new_state()
         output = None
         for i in range(X.size(0)):
-            output, hidden_state = net(X[i])
+            output, hidden_state = net(X[i], state)
         return output
 
     def dataloader_fn(self):

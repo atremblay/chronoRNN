@@ -74,18 +74,18 @@ class TaskModelTraining(object):
     @staticmethod
     def loss_fn(net, X, Y, criterion):
         loss = Variable(torch.zeros(1))
-        net.create_new_state()
+        state = net.create_new_state()
         for i in range(X.size(0)):
-            loss += criterion(net(X[i])[0], Y[i])
+            loss += criterion(net(X[i], state)[0], Y[i])
         assert not hasnan(loss)
         return loss
 
     @staticmethod
     def forward_fn(net, X, ):
-        net.create_new_state()
+        state = net.create_new_state()
         outputs = []  # The outputs can be of a variable size.
         for i in range(X.size(0)):
-            outputs.append(net(X[i])[0])
+            outputs.append(net(X[i], state)[0])
         return outputs
 
     def dataloader_fn(self):

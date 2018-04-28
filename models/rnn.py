@@ -36,11 +36,6 @@ class Rnn(nn.Module):
             self.w_gh = Parameter(torch.Tensor(hidden_size, hidden_size))
             self.b_g = Parameter(torch.Tensor(hidden_size))
 
-        # The hidden state is a learned parameter
-        self.h_ = Parameter(torch.Tensor(1, hidden_size))
-        if self.gated:
-            self.g_ = Parameter(torch.Tensor(1, hidden_size))
-
         self.linear = nn.Linear(hidden_size, input_size)
 
         self.reset_parameters()
@@ -48,12 +43,12 @@ class Rnn(nn.Module):
 
     def create_new_state(self):
         # Dimension: (num_layers * num_directions, batch, hidden_size)
-        self.h = self.h_.clone().repeat(self.batch_size, 1)
+        h = Variable(torch.zeros(1, self.hidden_size).repeat(self.batch_size, 1))
         if self.gated:
-            self.g = self.g_.clone().repeat(self.batch_size, 1)
-            return self.h, self.g
+            g = Variable(torch.zeros(1, self.hidden_size).repeat(self.batch_size, 1))
+            return h, g
         else:
-            return self.h
+            return h,
 
     def reset_parameters(self):
         stdv = 1.0 / math.sqrt(self.hidden_size)
@@ -66,42 +61,42 @@ class Rnn(nn.Module):
     def size(self):
         return self.input_size, self.hidden_size
 
-    def forward(self, x=None):
+    def forward(self, x, state):
+        """
         if x is None:
             x = Variable(torch.zeros(self.batch_size, self.input_size))
-
-        h = self.h
-
+        """
         if self.gated:
-            g = self.g
-            self.g = F.tanh(
+            h, g = state
+            g = F.tanh(
                 torch.mm(x, self.w_gx) + torch.mm(h, self.w_gh) + self.b_g
             )
             # Hidden state
-            self.h = g * F.tanh(
+            h = g * F.tanh(
                 torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
             ) + (1 - g) * h
             # Output
-            o = self.linear(self.h)
+            o = self.linear(h)
 
             # Current state
-            state = (self.h, self.g)
+            state = (h, g)
             return o, state
         if self.leaky:
             # Hidden state
-            self.h = self.a * F.tanh(
+            h, = state
+            h = self.a * F.tanh(
                 torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
             ) + (1 - self.a) * h
             # Output
-            o = self.linear(self.h)
+            o = self.linear(h)
 
             # Current state
-            state = (self.h,)
+            state = (h,)
             return o, state
         else:
-            # Hidden state
-            self.h = F.tanh(
+            h, = state
+            h = F.tanh(
                 torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
             )
-            o = self.linear(self.h)
-            return o, self.h
+            o = self.linear(h)
+            return o, (h,)
