@@ -40,7 +40,6 @@ class Rnn(nn.Module):
         self.linear = nn.Linear(hidden_size, input_size)
 
         self.reset_parameters()
-        self.create_new_state()
 
     def create_new_state(self):
         # Dimension: (batch, hidden_size)
@@ -53,13 +52,12 @@ class Rnn(nn.Module):
             return h,
 
     def reset_parameters(self):
-        stdv = 1.0 / math.sqrt(self.hidden_size)
         for name, weight in self.named_parameters():
             if "linear." not in name:
                 if weight.dim() == 1:
                     weight.data.zero_()
                 else:
-                    weight.data.uniform_(-stdv, stdv)
+                    torch.nn.init.xavier_uniform(weight.data)
 
     def size(self):
         return self.input_size, self.hidden_size
