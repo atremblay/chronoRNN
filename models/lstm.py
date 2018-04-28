@@ -45,13 +45,8 @@ class LSTM(nn.Module):
         self.lstm.bias_ih_l0.data[self.hidden_size: self.hidden_size * 2] = torch.Tensor(bias)
 
     def reset_parameters(self):
-        for name, p in self.named_parameters():
-            if p.dim() == 1:
-                nn.init.constant(p, 0)
-            else:
-                stdev = 5 / (np.sqrt(self.input_size + self.hidden_size))
-                nn.init.uniform(p, -stdev, stdev)
-
+        self.linear.reset_parameters()
+        self.lstm.reset_parameters()
         #############
         # Set the bias of the input gates to 1.
         # Explanation:
