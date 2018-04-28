@@ -15,9 +15,9 @@ LOG_LEVEL = logging.WARNING
 # So, for each mode, we have a list of lists of options. Each list in the list is a combination of option to try.
 MODEL_MODES = {"Rnn": [[],
                        ["-pgated=True"],
- #                      ["-pleaky=True"],
+                       ["-pleaky=True"],
                        ], # the empty string is to also test the default
-               "ChronoLSTM": [None, # Eventually this will be for the chrono bias and the regular bias
+               "ChronoLSTM": [[], # Eventually this will be for the chrono bias and the regular bias
                               ]}
 
 
@@ -43,7 +43,7 @@ with open(folder/f"{timestamp}.log", "w") as f:
                     f.write(message + "\n")
                 except Exception as err:
                     message = (f"FAILED -  Task: {task + ',':10} Model: {model + ',':12}  Mode: {str(mode_options)},  "
-                               f"Error: \"{err.__class__.__name__}: {err}\""
+                               #f"Error: \"{err.__class__.__name__}: {err}\""
                                f"\nStacktrace:\n\"\n{traceback.format_exc()}\"")
                     print(message + "\n")
                     f.write(message)

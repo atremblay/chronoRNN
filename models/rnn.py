@@ -28,7 +28,7 @@ class Rnn(nn.Module):
 
         # Learnable leak term
         if self.leaky:
-            self.a = Parameter(torch.Tensor(input_size, hidden_size))
+            self.a = Parameter(torch.Tensor(1))
 
         # Time warp gate
         if self.gated:
@@ -93,7 +93,7 @@ class Rnn(nn.Module):
             o = self.linear(self.h)
 
             # Current state
-            state = (self.h, self.g)
+            state = (self.h,)
             return o, state
         else:
             # Hidden state
