@@ -1,9 +1,9 @@
-from main import main, POSSIBLE_MODELS, POSSIBLE_TASKS
+from main import main
+from utils.argument import POSSIBLE_MODELS, POSSIBLE_TASKS
 from pathlib import Path
 import datetime
 import logging
 import traceback
-import collections
 import time
 
 NUM_BATCHES = 200 #6
