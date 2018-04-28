@@ -5,6 +5,7 @@ import torch
 import json
 import logging
 from pathlib import Path
+from main import parse_param
 from torch.nn import functional as F
 LOGGER = logging.getLogger(__name__)
 
@@ -47,9 +48,9 @@ def train(task, args):
         if (args.checkpoint_interval != 0) and (batch_num % args.checkpoint_interval == 0):
             save_checkpoint(task.net, task.params.name, args,
                             batch_num, losses, costs, seq_lengths,
-                            args, task)
+                            task)
 
-    save_checkpoint(task.net, task.params.name, args, batch_num, losses, costs, seq_lengths, args, task)
+    save_checkpoint(task.net, task.params.name, args, batch_num, losses, costs, seq_lengths, task)
     LOGGER.info("Done training.")
 
 
@@ -63,13 +64,23 @@ def train_batch(net, criterion, optimizer, X, Y, loss_fn):
     return loss.data[0]
 
 
-def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths, arguments, model):
+def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths, model):
     progress_clean()
 
     checkpoint_path = Path(args.checkpoint_path)
     assert checkpoint_path.exists(), f"You need to create {checkpoint_path}"
 
-    basename = f"{checkpoint_path}/{name}-{net.__class__.__name__}-batch-{batch_num}-seed-{args.seed}"
+    parsed = parse_param(args.param)
+    if parsed.get("gated", False):
+        modifier = "gated"
+    elif parsed.get("leaky"):
+        modifier = "leaky"
+    elif parsed.get("chrono"):
+        modifier = "chrono"
+    else:
+        modifier = "vanilla"
+
+    basename = f"{checkpoint_path}/{name}-{net.__class__.__name__}-{modifier}-batch-{batch_num}-seed-{args.seed}"
 
     # Save the training history
     train_fname = basename + ".json"
@@ -91,7 +102,7 @@ def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths, argu
         # The two following things are required if we ever want to resume training
         "optimizer": model.optimizer,
         "batch_num": batch_num,
-        "arguments": arguments,
+        "arguments": args,
 
     }
     torch.save(checkpoint, model_fname)

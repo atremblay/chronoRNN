@@ -35,7 +35,7 @@ class TaskParams(object):
     input_size = attrib(default=1, convert=int)
     hidden_size = attrib(default=128, convert=int)
     # Optimizer params
-    rmsprop_lr = attrib(default=10**-4, convert=float)
+    rmsprop_lr = attrib(default=10**-3, convert=float)
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params
@@ -43,6 +43,7 @@ class TaskParams(object):
     seq_len = attrib(default=10, convert=int)
     leaky = attrib(default=False, convert=bool)  # it's very important that this remains False by default
     gated = attrib(default=False, convert=bool)  # it's very important that this remains False by default
+
 
 @attrs
 class TaskModelTraining(object):
