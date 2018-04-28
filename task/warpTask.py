@@ -60,7 +60,8 @@ class TaskParams(object):
     alphabet = attrib(default=range(1, 11), convert=list)
     pad = attrib(default=0, convert=int)
     chrono = attrib(default=False, convert=bool)
-    gated = attrib(default=False, convert=bool)
+    gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
+    leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
 
 
 @attrs

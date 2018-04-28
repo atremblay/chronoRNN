@@ -38,7 +38,8 @@ class TaskParams(object):
     # Dataloader params
     num_batches = attrib(default=1000000, convert=int)
     seq_len = attrib(default=10, convert=int)
-
+    leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
+    gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
 
 @attrs
 class TaskModelTraining(object):
