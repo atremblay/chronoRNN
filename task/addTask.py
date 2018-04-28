@@ -35,14 +35,14 @@ class TaskParams(object):
     input_size = attrib(default=1, convert=int)
     hidden_size = attrib(default=128, convert=int)
     # Optimizer params
-    rmsprop_lr = attrib(default=10**-3, convert=float) # "The synthetic tasks use a LR of 10^-3" p8, 4th paragraph
+    rmsprop_lr = attrib(default=10**-4, convert=float)
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params
     num_batches = attrib(default=1000000, convert=int)
     seq_len = attrib(default=10, convert=int)
-    leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
-    gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
+    leaky = attrib(default=False, convert=bool)  # it's very important that this remains False by default
+    gated = attrib(default=False, convert=bool)  # it's very important that this remains False by default
 
 @attrs
 class TaskModelTraining(object):
@@ -54,7 +54,7 @@ class TaskModelTraining(object):
         state = net.create_new_state()
         output = None
         for i in range(X.size(0)):
-            output, hidden_state = net(X[i], state)
+            output, state = net(X[i], state)
         loss = criterion(output, Y)
         assert not hasnan(loss)
         return loss
@@ -64,7 +64,7 @@ class TaskModelTraining(object):
         state = net.create_new_state()
         output = None
         for i in range(X.size(0)):
-            output, hidden_state = net(X[i], state)
+            output, state = net(X[i], state)
         return output
 
     def dataloader_fn(self):
@@ -93,3 +93,4 @@ class TaskModelTraining(object):
                              momentum=self.params.rmsprop_momentum,
                              alpha=self.params.rmsprop_alpha,
                              lr=self.params.rmsprop_lr)
+

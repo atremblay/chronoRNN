@@ -76,7 +76,8 @@ class TaskModelTraining(object):
         loss = Variable(torch.zeros(1))
         state = net.create_new_state()
         for i in range(X.size(0)):
-            loss += criterion(net(X[i], state)[0], Y[i])
+            output, state = net(X[i], state)
+            loss += criterion(output, Y[i])
         assert not hasnan(loss)
         return loss
 
@@ -85,7 +86,8 @@ class TaskModelTraining(object):
         state = net.create_new_state()
         outputs = []  # The outputs can be of a variable size.
         for i in range(X.size(0)):
-            outputs.append(net(X[i], state)[0])
+            output, state = net(X[i], state)
+            outputs.append(output)
         return outputs
 
     def dataloader_fn(self):

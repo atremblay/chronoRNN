@@ -42,7 +42,7 @@ class Rnn(nn.Module):
         self.create_new_state()
 
     def create_new_state(self):
-        # Dimension: (num_layers * num_directions, batch, hidden_size)
+        # Dimension: (batch, hidden_size)
         h = Variable(torch.zeros(self.batch_size, self.hidden_size))
 
         if self.gated:

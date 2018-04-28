@@ -19,7 +19,6 @@ class ChronoLSTM(nn.Module):
         )
 
         self.linear = nn.Linear(hidden_size, input_size)
-
         self.reset_parameters()
         if chrono:
             self.chrono_bias(self.input_size)
@@ -64,7 +63,6 @@ class ChronoLSTM(nn.Module):
 
         x = x.unsqueeze(0)
         outp, (lstm_h, lstm_c) = self.lstm(x, (lstm_h, lstm_c))
-
         o = self.linear(outp.squeeze(0))
 
         return o.squeeze(0), (lstm_h, lstm_c)
