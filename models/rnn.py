@@ -24,7 +24,7 @@ class Rnn(nn.Module):
         # Hidden state
         self.w_xh = Parameter(torch.Tensor(input_size, hidden_size))
         self.w_hh = Parameter(torch.Tensor(hidden_size, hidden_size))
-        self.b_h = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
+        self.b_h = Parameter(torch.Tensor(hidden_size))
 
         # Learnable leak term
         if self.leaky:
@@ -34,7 +34,7 @@ class Rnn(nn.Module):
         if self.gated:
             self.w_gx = Parameter(torch.Tensor(input_size, hidden_size))
             self.w_gh = Parameter(torch.Tensor(hidden_size, hidden_size))
-            self.b_g = Parameter(torch.Tensor(hidden_size)).unsqueeze(0)
+            self.b_g = Parameter(torch.Tensor(hidden_size))
 
         # The hidden state is a learned parameter
         self.h_ = Parameter(torch.Tensor(1, hidden_size))
@@ -57,8 +57,14 @@ class Rnn(nn.Module):
 
     def reset_parameters(self):
         stdv = 1.0 / math.sqrt(self.hidden_size)
-        for weight in self.parameters():
-            weight.data.uniform_(-stdv, stdv)
+        for name, weight in self.named_parameters():
+            if weight.dim() == 1:
+                weight.data.zero_()
+            else:
+                weight.data.uniform_(-stdv, stdv)
+
+
+
 
     def size(self):
         return self.input_size, self.hidden_size
