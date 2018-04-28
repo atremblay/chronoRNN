@@ -88,7 +88,7 @@ class Rnn(nn.Module):
             # Hidden state
             self.h = self.a * F.tanh(
                 torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
-            ) + (1 - g) * h
+            ) + (1 - self.a) * h
             # Output
             o = self.linear(self.h)
 
