@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 
 POSSIBLE_TASKS = {"warpTask", "addTask", "copyTask"}
-POSSIBLE_MODELS = {"ChronoLSTM", "Rnn"}
+POSSIBLE_MODELS = {"LSTM", "Rnn"}
 
 LOGGER = logging.getLogger(__name__)
 
