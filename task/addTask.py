@@ -27,12 +27,12 @@ class TaskParams(object):
     # ALL OF THIS NEEDS TO BE CHECKED
     name = attrib(default="addTask")
     # Model params
-    model_type = attrib(default="Rnn")
+    model_type = attrib(default=None)
     batch_size = attrib(default=1, convert=int)
     input_size = attrib(default=1, convert=int)
     hidden_size = attrib(default=128, convert=int)
     # Optimizer params
-    rmsprop_lr = attrib(default=1e-4, convert=float)
+    rmsprop_lr = attrib(default=10**-3, convert=float) # "The synthetic tasks use a LR of 10^-3" p8, 4th paragraph
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.95, convert=float)
     # Dataloader params

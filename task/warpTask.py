@@ -46,16 +46,16 @@ def dataloader(batch_size,
 class TaskParams(object):
     name = attrib(default="warpTask")
     # Model params
-    model_type = attrib(default="Rnn")
-    batch_size = attrib(default=32, convert=int)
-    hidden_size = attrib(default=64, convert=int)
+    model_type = attrib(default=None)
+    batch_size = attrib(default=32, convert=int) # "a batch size of 32 is used" p8, paragraph 2
+    hidden_size = attrib(default=64, convert=int) # "[For the warp task], all networks have 64 units" p9, last paragraph
     # Optimizer params
     rmsprop_lr = attrib(default=1e-4, convert=float)
     rmsprop_momentum = attrib(default=0.9, convert=float)
-    rmsprop_alpha = attrib(default=0.95, convert=float)
+    rmsprop_alpha = attrib(default=0.9, convert=float) # "RMSProp with an alpha of 0.9 [is used]" p8, paragraph 2
     # Dataloader params
-    num_batches = attrib(default=1000, convert=int)
-    seq_len = attrib(default=10, convert=int)
+    num_batches = attrib(default=50000, convert=int) # P.6, last paragraph. WE NEED TO DO EPOCHS!
+    seq_len = attrib(default=500, convert=int) # P.6, last paragraph
     max_repeat = attrib(default=4, convert=int)
     uniform_warp = attrib(default=False, convert=bool)
     alphabet = attrib(default=range(1, 11), convert=list)

@@ -35,12 +35,12 @@ class TaskParams(object):
     batch_size = attrib(default=1, convert=int)
     name = attrib(default="copyTask")
     # Model params
-    model_type = attrib(default="Rnn")
-    hidden_size = attrib(default=128, convert=int)
+    model_type = attrib(default=None)
+    hidden_size = attrib(default=128, convert=int) # p8, paragraph 7
     # Optimizer params
-    rmsprop_lr = attrib(default=1e-4, convert=float)
+    rmsprop_lr = attrib(default=10**-3, convert=float)  # "The synthetic tasks use a LR of 10^-3" p8, 4th paragraph
     rmsprop_momentum = attrib(default=0.9, convert=float)
-    rmsprop_alpha = attrib(default=0.95, convert=float)
+    rmsprop_alpha = attrib(default=0.9, convert=float) # "[...] a moving average parameter of 0.9" p8, paragraph 4
     # Dataloader params
     num_batches = attrib(default=1000, convert=int)
     seq_len = attrib(default=500, convert=int)
