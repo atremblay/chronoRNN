@@ -54,7 +54,6 @@ class ChronoLSTM(nn.Module):
                 stdev = 5 / (np.sqrt(self.input_size + self.hidden_size))
                 nn.init.uniform(p, -stdev, stdev)
 
-
     def size(self):
         return self.input_size, self.hidden_size
 
