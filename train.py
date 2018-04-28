@@ -1,12 +1,10 @@
-from utils.Variable import Variable
 from utils.reporting import get_ms, progress_bar, progress_clean
 import numpy as np
 import torch
 import json
 import logging
 from pathlib import Path
-from utils.varia import parse_param
-from torch.nn import functional as F
+from utils.argument import parse_param
 LOGGER = logging.getLogger(__name__)
 
 
@@ -15,8 +13,13 @@ def train(task, args):
     num_batches = task.params.num_batches
     batch_size = task.params.batch_size
 
-    LOGGER.info("Training model for %d batches (batch_size=%d)...",
-                num_batches, batch_size)
+    # Training Info reporting
+    if hasattr(task.params, 'epochs'):
+        LOGGER.info("Training model for %d batches (batch_size=%d), and %d epochs...",
+                    num_batches, batch_size, task.params.epochs)
+    else:
+        LOGGER.info("Training model for %d batches (batch_size=%d)...",
+                    num_batches, batch_size)
 
     losses = []
     costs = []
@@ -80,7 +83,7 @@ def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths, mode
     else:
         modifier = "vanilla"
 
-    basename = f"{checkpoint_path}/{name}-{net.__class__.__name__}-{modifier}-batch-{batch_num}-seed-{args.seed}"
+    basename = f"{checkpoint_path}/{name}-{net.__class__.__name__}-{modifier}-seq_len-{model.params.seq_len}-batch-{batch_num}-seed-{args.seed}_{args.run_instance}"
 
     # Save the training history
     train_fname = basename + ".json"

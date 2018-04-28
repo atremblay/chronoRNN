@@ -16,6 +16,7 @@ def compute_input_size(alphabet):
 
 # Generator of randomized test sequences
 def dataloader(batch_size,
+               epochs,
                num_batches,
                seq_len,
                max_repeat,
@@ -25,6 +26,7 @@ def dataloader(batch_size,
     """Generator of random sequences for the warp task.
 
     """
+    data = []
     for batch_num in range(num_batches):
 
         inp, outp = warp_data(
@@ -35,13 +37,20 @@ def dataloader(batch_size,
             pad,
             batch_size
         )
+        data.append((inp, outp))
 
-        inp = to_categorical(inp, num_classes=len(alphabet) + 1)
-        # outp = to_categorical(outp, num_classes=len(alphabet) + 1)
-        inp = Variable(torch.from_numpy(inp))
-        outp = Variable(torch.LongTensor(outp))
+    batch_num = 0
+    for epoch in range(epochs):
+        for inp, outp in data:
 
-        yield batch_num + 1, inp.float(), outp
+            inp = to_categorical(inp, num_classes=len(alphabet) + 1)
+            # outp = to_categorical(outp, num_classes=len(alphabet) + 1)
+            inp = Variable(torch.from_numpy(inp))
+            outp = Variable(torch.LongTensor(outp))
+
+            batch_num += 1
+
+            yield batch_num, inp.float(), outp
 
 
 @attrs
@@ -56,7 +65,8 @@ class TaskParams(object):
     rmsprop_momentum = attrib(default=0.9, convert=float)
     rmsprop_alpha = attrib(default=0.9, convert=float) # "RMSProp with an alpha of 0.9 [is used]" p8, paragraph 2
     # Dataloader params
-    num_batches = attrib(default=50000, convert=int) # P.6, last paragraph. WE NEED TO DO EPOCHS!
+    epochs = attrib(default=3, convert=int)  # P.6, last paragraph. WE NEED TO DO EPOCHS!
+    num_batches = attrib(default=50000/batch_size._default, convert=int) #TODO: This is dirty
     seq_len = attrib(default=500, convert=int) # P.6, last paragraph
     max_repeat = attrib(default=4, convert=int)
     uniform_warp = attrib(default=False, convert=bool)
