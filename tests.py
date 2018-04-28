@@ -6,7 +6,7 @@ import traceback
 import collections
 import time
 
-NUM_BATCHES = 1000 #6
+NUM_BATCHES = 200 #6
 CHECKPOINT_INTERVAL = NUM_BATCHES // 2
 REPORT_INTERVAL = NUM_BATCHES // 2
 BATCH_SIZE = 2
