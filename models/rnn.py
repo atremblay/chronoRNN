@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 import math
+from utils.varia import hasnan
 
 
 class Rnn(nn.Module):
@@ -54,10 +55,11 @@ class Rnn(nn.Module):
     def reset_parameters(self):
         stdv = 1.0 / math.sqrt(self.hidden_size)
         for name, weight in self.named_parameters():
-            if weight.dim() == 1:
-                weight.data.zero_()
-            else:
-                weight.data.uniform_(-stdv, stdv)
+            if "linear." not in name:
+                if weight.dim() == 1:
+                    weight.data.zero_()
+                else:
+                    weight.data.uniform_(-stdv, stdv)
 
     def size(self):
         return self.input_size, self.hidden_size
@@ -70,7 +72,7 @@ class Rnn(nn.Module):
         if self.gated:
             h, g = state
             g = F.tanh(
-                torch.mm(x, self.w_gx) + torch.mm(h, self.w_gh) + self.b_g
+                torch.mm(x, self.w_gx) + torch.mm(g, self.w_gh) + self.b_g
             )
             # Hidden state
             h = g * F.tanh(
@@ -81,6 +83,7 @@ class Rnn(nn.Module):
 
             # Current state
             state = (h, g)
+
             return o, state
         if self.leaky:
             # Hidden state
