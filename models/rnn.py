@@ -13,7 +13,7 @@ DEBUG = False
 
 
 class Rnn(nn.Module):
-    """A vanilla Rnn implementation with a gated option"""
+    """A vanilla RNN implementation with a gated option"""
     def __init__(self, input_size, hidden_size, batch_size=32, gated=False, leaky=False,
                  orthogonal_hidden_weight_init=True):
         super(Rnn, self).__init__()
@@ -90,17 +90,24 @@ class Rnn(nn.Module):
 
         if self.gated:
             h, g = state
-            g = F.sigmoid(
-                torch.mm(x, self.w_gx) + torch.mm(g, self.w_gh) + self.b_g
-            )
+
+            pre_activation_g = torch.mm(g, self.w_gh) + self.b_g
+            if x is not None:
+                pre_activation_g += torch.mm(x, self.w_gx)
+
+            g = F.sigmoid(pre_activation_g)
             if DEBUG:
                 assert not hasnan(g)
+
             # Hidden state
-            h = g * F.tanh(
-                torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
-            ) + (1 - g) * h
+            pre_activation_h = torch.mm(h, self.w_hh) + self.b_h
+            if x is not None:
+                pre_activation_h += torch.mm(x, self.w_xh)
+
+            h = g * F.tanh(pre_activation_h) + (1 - g) * h
             if DEBUG:
                 assert not hasnan(h)
+
             # Output
             o = self.linear(h)
             if DEBUG:
@@ -124,8 +131,9 @@ class Rnn(nn.Module):
             return o, state
         else:
             h, = state
-            h = F.tanh(
-                torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
-            )
+            pre_activation = torch.mm(h, self.w_hh) + self.b_h
+            if x is not None:
+                pre_activation += torch.mm(x, self.w_xh)
+            h = F.tanh(pre_activation)
             o = self.linear(h)
             return o, (h,)

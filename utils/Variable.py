@@ -23,7 +23,6 @@ class CVariable:
         else:
             return torchVariable(x)
 
+
 # Redirection instance
 Variable = CVariable()
-
-
