@@ -3,12 +3,17 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch
 import numpy as np
+from utils.varia import hasnan, debug_inits
+import logging
+LOGGER = logging.getLogger(__name__)
 
 
 class LSTM(nn.Module):
     """docstring for ChronoLSTM"""
-    def __init__(self, input_size, hidden_size, batch_size, chrono=False):
+    def __init__(self, input_size, hidden_size, batch_size, chrono=False, orthogonal_hidden_init=True):
         super(LSTM, self).__init__()
+        self.orthogonal_hidden_weight_init = orthogonal_hidden_init
+
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.batch_size = batch_size
@@ -44,6 +49,7 @@ class LSTM(nn.Module):
         self.lstm.bias_ih_l0.data[:self.hidden_size] = -torch.Tensor(bias.copy())
         self.lstm.bias_ih_l0.data[self.hidden_size: self.hidden_size * 2] = torch.Tensor(bias)
 
+
     def reset_parameters(self):
         self.linear.reset_parameters()
         self.lstm.reset_parameters()
@@ -64,8 +70,18 @@ class LSTM(nn.Module):
                 start, end = n // 4, n // 2
                 bias.data[start:end].fill_(1.)
 
+            if self.orthogonal_hidden_weight_init:
+                # There is only one hidden weight matrix
+                hidden_weight_name = list(filter(lambda n: "weight" in n and "hh" in n, names))
+                assert len(hidden_weight_name) == 1
+                hidden_weight_name = hidden_weight_name[0]
+                hidden_weight = getattr(self.lstm, hidden_weight_name)
+                torch.nn.init.orthogonal(hidden_weight)
+
         if self.chrono:
             self.chrono_bias(self.input_size)
+
+        debug_inits(self, LOGGER)
 
     def size(self):
         return self.input_size, self.hidden_size
