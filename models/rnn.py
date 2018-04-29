@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from torch.nn import Parameter
-from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
-import math
-from utils.varia import hasnan
+from utils.Variable import maybe_cuda, Variable
 
 
 class Rnn(nn.Module):
@@ -23,19 +21,19 @@ class Rnn(nn.Module):
         self.leaky = leaky
 
         # Hidden state
-        self.w_xh = Parameter(torch.Tensor(input_size, hidden_size))
-        self.w_hh = Parameter(torch.Tensor(hidden_size, hidden_size))
-        self.b_h = Parameter(torch.Tensor(hidden_size))
+        self.w_xh = Parameter(maybe_cuda(torch.Tensor(input_size, hidden_size)))
+        self.w_hh = Parameter(maybe_cuda(torch.Tensor(hidden_size, hidden_size)))
+        self.b_h = Parameter(maybe_cuda(torch.Tensor(hidden_size)))
 
         # Learnable leak term
         if self.leaky:
-            self.a = Parameter(torch.Tensor(1))
+            self.a = Parameter(maybe_cuda(torch.Tensor(1)))
 
         # Time warp gate
         if self.gated:
-            self.w_gx = Parameter(torch.Tensor(input_size, hidden_size))
-            self.w_gh = Parameter(torch.Tensor(hidden_size, hidden_size))
-            self.b_g = Parameter(torch.Tensor(hidden_size))
+            self.w_gx = Parameter(maybe_cuda(torch.Tensor(input_size, hidden_size)))
+            self.w_gh = Parameter(maybe_cuda(torch.Tensor(hidden_size, hidden_size)))
+            self.b_g = Parameter(maybe_cuda(torch.Tensor(hidden_size)))
 
         self.linear = nn.Linear(hidden_size, input_size)
 
@@ -58,6 +56,7 @@ class Rnn(nn.Module):
                     weight.data.zero_()
                 else:
                     torch.nn.init.xavier_uniform(weight.data)
+
 
     def size(self):
         return self.input_size, self.hidden_size
