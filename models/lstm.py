@@ -12,7 +12,7 @@ class LSTM(nn.Module):
     """docstring for ChronoLSTM"""
     def __init__(self, input_size, hidden_size, batch_size, chrono=False, orthogonal_hidden_init=True):
         super(LSTM, self).__init__()
-        self.orthogonal_hidden_init = orthogonal_hidden_init
+        self.orthogonal_hidden_weight_init = orthogonal_hidden_init
 
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -70,7 +70,7 @@ class LSTM(nn.Module):
                 start, end = n // 4, n // 2
                 bias.data[start:end].fill_(1.)
 
-            if self.orthogonal_hidden_init:
+            if self.orthogonal_hidden_weight_init:
                 # There is only one hidden weight matrix
                 hidden_weight_name = list(filter(lambda n: "weight" in n and "hh" in n, names))
                 assert len(hidden_weight_name) == 1
