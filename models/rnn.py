@@ -7,7 +7,7 @@ import torch
 from utils.Variable import maybe_cuda, Variable
 from utils.varia import hasnan, debug_inits
 import logging
-from numpy import np
+import numpy as np
 LOGGER = logging.getLogger(__name__)
 DEBUG = False
 
