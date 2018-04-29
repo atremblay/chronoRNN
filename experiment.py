@@ -126,7 +126,7 @@ if __name__ == '__main__':
     if not os.path.isdir(checkpoint_path): os.mkdir(checkpoint_path)
 
     checkpoint_path = ['--checkpoint_path', checkpoint_path]
-    for run in exp[sys.argv[1]]():
-        main(run+checkpoint_path)
+    # for run in exp[sys.argv[1]]():
+    #     main(run+checkpoint_path)
 
     plot_experiment(checkpoint_path[1])

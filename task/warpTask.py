@@ -91,8 +91,9 @@ class TaskModelTraining(object):
         state = net.create_new_state()
         for i in range(X.size(0)):
             output, state = net(X[i], state)
-            loss += criterion(output, Y[i])
-        assert not hasnan(loss)
+            output = criterion(output, Y[i])
+            loss += output
+        assert not hasnan(loss), f"loss has NaNs: {loss.data.cpu()}"
         return loss
 
     @staticmethod

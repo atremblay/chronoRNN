@@ -5,6 +5,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 from utils.Variable import maybe_cuda, Variable
+from utils.varia import hasnan, debug_inits
+import logging
+LOGGER = logging.getLogger(__name__)
+DEBUG = False
 
 
 class Rnn(nn.Module):
@@ -50,6 +54,7 @@ class Rnn(nn.Module):
             return h,
 
     def reset_parameters(self):
+        self.linear.reset_parameters()
         for name, weight in self.named_parameters():
             if "linear." not in name:
                 if weight.dim() == 1:
@@ -57,6 +62,7 @@ class Rnn(nn.Module):
                 else:
                     torch.nn.init.xavier_uniform(weight.data)
 
+        debug_inits(self, LOGGER)
 
     def size(self):
         return self.input_size, self.hidden_size
@@ -66,17 +72,27 @@ class Rnn(nn.Module):
         if x is None:
             x = Variable(torch.zeros(self.batch_size, self.input_size))
         """
+        if DEBUG:
+            for name, param in self.named_parameters():
+                assert not hasnan(param), f"{name} has nans"
+
         if self.gated:
             h, g = state
-            g = F.tanh(
+            g = F.sigmoid(
                 torch.mm(x, self.w_gx) + torch.mm(g, self.w_gh) + self.b_g
             )
+            if DEBUG:
+                assert not hasnan(g)
             # Hidden state
             h = g * F.tanh(
                 torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
             ) + (1 - g) * h
+            if DEBUG:
+                assert not hasnan(h)
             # Output
             o = self.linear(h)
+            if DEBUG:
+                assert not hasnan(o)
 
             # Current state
             state = (h, g)
