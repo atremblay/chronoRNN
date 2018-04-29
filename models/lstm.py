@@ -3,6 +3,9 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch
 import numpy as np
+from utils.varia import hasnan, debug_inits
+import logging
+LOGGER = logging.getLogger(__name__)
 
 
 class LSTM(nn.Module):
@@ -44,6 +47,7 @@ class LSTM(nn.Module):
         self.lstm.bias_ih_l0.data[:self.hidden_size] = -torch.Tensor(bias.copy())
         self.lstm.bias_ih_l0.data[self.hidden_size: self.hidden_size * 2] = torch.Tensor(bias)
 
+
     def reset_parameters(self):
         self.linear.reset_parameters()
         self.lstm.reset_parameters()
@@ -66,6 +70,8 @@ class LSTM(nn.Module):
 
         if self.chrono:
             self.chrono_bias(self.input_size)
+
+        debug_inits(self, LOGGER)
 
     def size(self):
         return self.input_size, self.hidden_size
