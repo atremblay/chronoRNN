@@ -56,10 +56,10 @@ class TaskParams(object):
     num_batches = attrib(default=1000, convert=int)
     seq_len = attrib(default=500, convert=int)
     variable = attrib(default=False, convert=bool)
-    alphabet = attrib(default=range(1, 9), convert=list)
+    alphabet = attrib(default=range(0, 8), convert=list)
     chrono = attrib(default=False, convert=bool)
-    dummy = attrib(default=9, convert=int)
-    eos = attrib(default=10, convert=int)
+    dummy = attrib(default=8, convert=int)
+    eos = attrib(default=9, convert=int)
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
     gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
     chrono = attrib(default=False, convert=bool)
