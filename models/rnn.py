@@ -120,9 +120,12 @@ class Rnn(nn.Module):
         if self.leaky:
             # Hidden state
             h, = state
-            h = self.a * F.tanh(
-                torch.mm(x, self.w_xh) + torch.mm(h, self.w_hh) + self.b_h
-            ) + (1 - self.a) * h
+
+            pre_activation_h = torch.mm(h, self.w_hh) + self.b_h
+            if x is not None:
+                pre_activation_h += torch.mm(x, self.w_xh)
+
+            h = self.a * F.tanh(pre_activation_h) + (1 - self.a) * h
             # Output
             o = self.linear(h)
 
