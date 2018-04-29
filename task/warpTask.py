@@ -90,19 +90,8 @@ class TaskModelTraining(object):
         loss = Variable(torch.zeros(1))
         state = net.create_new_state()
         for i in range(X.size(0)):
-            for state_ in state:
-                assert not hasnan(state_)
             output, state = net(X[i], state)
             output = criterion(output, Y[i])
-            if hasnan(output):
-                state_info = ""
-                for i, state_ in enumerate(state):
-                    had_nans_str = 'DID HAVE NANS' if hasnan(state_) else 'did not have nans'
-                    state_info += (f"state {i} {had_nans_str} and has mean {torch.mean(state_[i])}"
-                                   f" and variance {torch.var(state_[i])}\n")
-
-                raise RuntimeError(f"output has NaNs:\noutput: {output.data},\n"
-                                   f"Y: {Y[i]},\nX: {X[i]}\n{state_info}")
             loss += output
         assert not hasnan(loss), f"loss has NaNs: {loss.data.cpu()}"
         return loss
