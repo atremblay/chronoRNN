@@ -83,7 +83,10 @@ def save_checkpoint(net, name, args, batch_num, losses, costs, seq_lengths, mode
     else:
         modifier = "RNN"
 
-    basename = f"{checkpoint_path}/{name}-{net.__class__.__name__}-{modifier}-seq_len-{model.params.seq_len}-batch-{batch_num}-seed-{args.seed}_{args.run_instance}"
+    if hasattr(model.params, 'max_repeat'):
+        modifier += '-max_repeat-'+str(model.params.max_repeat)
+
+    basename = f"{checkpoint_path}/{name}-{net.__class__.__name__}-{modifier}-batch-{batch_num}-seed-{args.seed}_{args.run_instance}"
 
     # Save the training history
     train_fname = basename + ".json"
