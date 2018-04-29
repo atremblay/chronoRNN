@@ -18,10 +18,10 @@ def debug_inits(module, logger):
         var_str = None
         if np.prod(param.size()) > 1:
             var = torch.var(param).data
-            assert (var < torch.FloatTensor([1.])).all(), f"{name}: {var}"
+            assert (var < torch.FloatTensor([100.])).all(), f"{name}: {var}"
             var_str = f"var: {var.cpu().numpy()}"
             mean = torch.mean(param).data
-            assert (torch.abs(mean) < torch.FloatTensor([1.])).all(), f"{name}: {mean}"
+            assert (torch.abs(mean) <= torch.FloatTensor([1.])).all(), f"{name}: {mean}"
         else:
             var_str = "Vector is size 1, no variance."
 

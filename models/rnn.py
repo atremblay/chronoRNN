@@ -63,7 +63,7 @@ class Rnn(nn.Module):
                 if self.orthogonal_hidden_init and (name == "w_hh" or name == "w_gh"):
                     torch.nn.init.orthogonal(weight)
                 if name == "b_g":
-                    weight.data.one_()
+                    torch.nn.init.constant(weight.data, 1)
                 elif weight.dim() == 1:
                     weight.data.zero_()
                 else:
