@@ -14,6 +14,17 @@ def hasnan(x):
 def debug_inits(module, logger):
     for name, param in module.named_parameters():
         assert not hasnan(param), f"{name}"
-        vars_str = f"var: {torch.var(param).data.cpu().numpy()}"
-        mean_str = f"mean: {torch.mean(param).data.cpu().numpy()}"
-        logger.info(f"{name:14}: {vars_str:18}  {mean_str:15}")
+
+        var_str = None
+        if np.prod(param.size()) > 1:
+            var = torch.var(param).data
+            assert (var < torch.FloatTensor([1.])).all(), f"{name}: {var}"
+            var_str = f"var: {var.cpu().numpy()}"
+            mean = torch.mean(param).data
+            assert (torch.abs(mean) < torch.FloatTensor([1.])).all(), f"{name}: {mean}"
+        else:
+            var_str = "Vector is size 1, no variance."
+
+        mean_str = f"mean: {mean.cpu().numpy()}"
+        logger.info(f"{name:14}: {var_str:18}  {mean_str:15}")
+

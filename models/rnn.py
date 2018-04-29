@@ -65,7 +65,12 @@ class Rnn(nn.Module):
                     weight.data.zero_()
                 else:
                     torch.nn.init.xavier_uniform(weight.data)
+
+        if self.leaky:
+            torch.nn.init.constant(self.a, 1)
+
         debug_inits(self, LOGGER)
+
 
     def size(self):
         return self.input_size, self.hidden_size
