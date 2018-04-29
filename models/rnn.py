@@ -79,7 +79,7 @@ class Rnn(nn.Module):
 
         if self.gated:
             h, g = state
-            g = F.tanh(
+            g = F.sigmoid(
                 torch.mm(x, self.w_gx) + torch.mm(g, self.w_gh) + self.b_g
             )
             if DEBUG:
