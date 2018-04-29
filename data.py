@@ -2,7 +2,7 @@
 # @Author: alexis
 # @Date:   2018-04-24 08:12:52
 # @Last Modified by:   Alexis Tremblay
-# @Last Modified time: 2018-04-26 11:20:31
+# @Last Modified time: 2018-04-29 18:24:22
 
 
 import random
@@ -226,27 +226,37 @@ def copy_data(
     """
     # alphabet = range(*alphabet)
     sequences = np.random.choice(alphabet, size=(batch_size, 10))
-    dummies = np.ones(shape=(batch_size, T - 1)) * dummy
+    if variable:
+        dummies_len = random.randint(1, T)
+        dummies = np.ones(shape=(batch_size, dummies_len)) * dummy
+    else:
+        dummies_len = T - 1
+        dummies = np.ones(shape=(batch_size, dummies_len)) * dummy
+
     signal = np.ones(shape=(batch_size, 1)) * eos
-    values = np.concatenate([sequences, dummies, signal], axis=1)
+    values = np.concatenate(
+        [
+            sequences,
+            dummies,
+            signal,
+            np.ones(shape=(batch_size, 10)) * dummy
+        ],
+        axis=1
+    )
 
     output_values = np.concatenate(
         [
+            -np.ones(shape=(batch_size, dummies_len + 10)),
             np.ones(shape=(batch_size, T + 10)) * dummy,
             sequences
         ],
         axis=1
     )
 
-    if variable:
-        filling = np.ones(shape=(batch_size, random.randint(1, T))) * dummy
-    else:
-        filling = np.ones(shape=(batch_size, 10)) * dummy
-
     if batch_first:
-        return np.concatenate([values, filling], axis=1), output_values
+        return values, output_values
     else:
-        return np.concatenate([values, filling], axis=1).T, output_values.T
+        return values.T, output_values.T
 
 
 def add_data(T, batch_size):
