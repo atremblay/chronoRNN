@@ -7,6 +7,7 @@ import torch
 from utils.Variable import maybe_cuda, Variable
 from utils.varia import hasnan, debug_inits
 import logging
+from numpy import np
 LOGGER = logging.getLogger(__name__)
 DEBUG = False
 
@@ -61,13 +62,16 @@ class Rnn(nn.Module):
             if "linear." not in name:
                 if self.orthogonal_hidden_init and (name == "w_hh" or name == "w_gh"):
                     torch.nn.init.orthogonal(weight)
+                if name == "b_g":
+                    weight.data.one_()
                 elif weight.dim() == 1:
                     weight.data.zero_()
                 else:
                     torch.nn.init.xavier_uniform(weight.data)
 
         if self.leaky:
-            torch.nn.init.constant(self.a, 1)
+            # This is inspired from setting the forget bias to 1
+            torch.nn.init.constant(self.a, 1 / (1 + np.exp(-1)))
 
         debug_inits(self, LOGGER)
 
