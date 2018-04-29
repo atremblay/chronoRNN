@@ -2,7 +2,7 @@
 # @Author: alexis
 # @Date:   2018-04-24 08:12:52
 # @Last Modified by:   Alexis Tremblay
-# @Last Modified time: 2018-04-29 18:24:22
+# @Last Modified time: 2018-04-29 18:43:07
 
 
 import random
@@ -331,4 +331,3 @@ def to_categorical(y, num_classes=None):
     output_shape = input_shape + (num_classes,)
     categorical = np.reshape(categorical, output_shape)
     return categorical
-

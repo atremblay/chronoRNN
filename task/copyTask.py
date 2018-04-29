@@ -9,6 +9,7 @@ import torch
 from utils.Variable import Variable
 from utils.varia import hasnan
 
+
 def compute_input_size(alphabet):
     return len(alphabet) + 3
 
@@ -21,9 +22,19 @@ def dataloader(batch_size, num_batches,
     Generator of random sequences for the add task.
     """
     for batch_num in range(num_batches):
-        inp, outp = copy_data(alphabet=alphabet, dummy=dummy, eos=eos,
-                              batch_size=batch_size, variable=variable, T=seq_len)
-        inp = Variable(torch.from_numpy(to_categorical(inp, num_classes=compute_input_size(alphabet))))
+        inp, outp = copy_data(
+            alphabet=alphabet,
+            dummy=dummy,
+            eos=eos,
+            batch_size=batch_size,
+            variable=variable,
+            T=seq_len
+        )
+        inp = Variable(
+            torch.from_numpy(
+                to_categorical(inp, num_classes=compute_input_size(alphabet))
+            )
+        )
         outp = Variable(torch.from_numpy(outp))
 
         yield batch_num + 1, inp, outp.long()
@@ -52,7 +63,8 @@ class TaskParams(object):
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
     gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
     chrono = attrib(default=False, convert=bool)
-    
+
+
 @attrs
 class TaskModelTraining(object):
     params = attrib(default=Factory(TaskParams))
@@ -62,9 +74,23 @@ class TaskModelTraining(object):
     def loss_fn(net, X, Y, criterion):
         loss = Variable(torch.zeros(1))
         state = net.create_new_state()
-        for i in range(X.size(0)):
-            output, state = net(X[i], state)
-            loss += criterion(output, Y[i])
+        inp_len = X.size(0)
+        outp_len = Y.size(0)
+        import pdb
+        # pdb.set_trace()
+        # For every element in the sequence
+        for i in range(outp_len):
+            if i < inp_len:
+                inp = X[i]
+            else:
+                inp = None
+            output, state = net(inp, state)
+            if hasnan(output):
+                pdb.set_trace()
+            if Y.data[i, 0] != -1:
+                loss += criterion(output, Y[i])
+                if hasnan(loss):
+                    print(i)
         assert not hasnan(loss)
         return loss
 

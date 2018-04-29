@@ -1,10 +1,13 @@
 from torch.nn import Parameter
-from torch.autograd import Variable
+# from torch.autograd import Variable
 import torch.nn as nn
 import torch
 import numpy as np
 from utils.varia import hasnan, debug_inits
 import logging
+from utils.Variable import Variable
+
+
 LOGGER = logging.getLogger(__name__)
 
 
