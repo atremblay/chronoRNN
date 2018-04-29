@@ -58,7 +58,6 @@ class Rnn(nn.Module):
         self.linear.reset_parameters()
         for name, weight in self.named_parameters():
             if "linear." not in name:
-                print(name)
                 if self.orthogonal_hidden_init and (name == "w_hh" or name == "w_gh"):
                     torch.nn.init.orthogonal(weight)
                 elif weight.dim() == 1:
