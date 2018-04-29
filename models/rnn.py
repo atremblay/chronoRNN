@@ -13,7 +13,8 @@ DEBUG = False
 
 class Rnn(nn.Module):
     """A vanilla Rnn implementation with a gated option"""
-    def __init__(self, input_size, hidden_size, batch_size=32, gated=False, leaky=False, orthogonal_hidden_weight_init=True):
+    def __init__(self, input_size, hidden_size, batch_size=32, gated=False, leaky=False,
+                 orthogonal_hidden_weight_init=True):
         super(Rnn, self).__init__()
 
         assert not (gated and leaky), "should be gated or leaky or neither, but can't be both"
