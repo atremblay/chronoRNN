@@ -131,4 +131,5 @@ if __name__ == '__main__':
     for run in exp[sys.argv[1]]():
         main(run+checkpoint_path)
 
+    random.seed(5000)
     plot_experiment(checkpoint_path[1])
