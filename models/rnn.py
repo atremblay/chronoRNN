@@ -14,7 +14,7 @@ DEBUG = False
 
 class Rnn(nn.Module):
     """A vanilla RNN implementation with a gated option"""
-    def __init__(self, input_size, hidden_size, batch_size=32, gated=False, leaky=False,
+    def __init__(self, input_size, hidden_size, max_repeat=None, batch_size=32, gated=False, leaky=False,
                  orthogonal_hidden_weight_init=True):
         super(Rnn, self).__init__()
 
@@ -26,6 +26,7 @@ class Rnn(nn.Module):
         self.batch_size = batch_size
         self.gated = gated
         self.leaky = leaky
+        self.max_repeat = max_repeat
 
         # Hidden state
         self.w_xh = Parameter(maybe_cuda(torch.Tensor(input_size, hidden_size)))
@@ -63,7 +64,12 @@ class Rnn(nn.Module):
                 if self.orthogonal_hidden_init and (name == "w_hh" or name == "w_gh"):
                     torch.nn.init.orthogonal(weight)
                 if name == "b_g":
-                    torch.nn.init.constant(weight.data, 1)
+                    if self.max_repeat is None:
+                        torch.nn.init.constant(weight.data, 1)
+                    else:
+                        torch.nn.init.uniform(weight.data, 1, 1 / (self.max_repeat))
+
+
                 elif weight.dim() == 1:
                     weight.data.zero_()
                 else:
@@ -71,7 +77,10 @@ class Rnn(nn.Module):
 
         if self.leaky:
             # This is inspired from setting the forget bias to 1
-            torch.nn.init.constant(self.a, 1 / (1 + np.exp(-1)))
+            if self.max_repeat is None:
+                torch.nn.init.constant(self.a, 1 / (1 + np.exp(-1)))
+            else:
+                torch.nn.init.constant(self.a, 1 / (self.max_repeat))
 
         debug_inits(self, LOGGER)
 

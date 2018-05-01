@@ -6,6 +6,7 @@ from task.taskManager import get_model
 import evaluation
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 ################################################################################
 # Experiments
 ################################################################################
@@ -122,6 +123,7 @@ def main(argv):
 
 
 if __name__ == '__main__':
+    random.seed(9001)
     checkpoint_path = './saves/'+sys.argv[1]
     if not os.path.isdir(checkpoint_path): os.mkdir(checkpoint_path)
 
