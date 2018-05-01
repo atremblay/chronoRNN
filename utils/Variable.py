@@ -2,7 +2,7 @@ from torch.autograd import Variable as torchVariable
 import torch
 
 # Variable Class Redirection for Cuda enabling context
-FORCE_CPU = False
+FORCE_CPU = True
 CUDA = (not FORCE_CPU) and torch.cuda.is_available()
 
 

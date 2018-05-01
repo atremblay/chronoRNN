@@ -1,11 +1,12 @@
 import torch
 import numpy as np
 from torch.autograd import Variable
-
+#from utils.Variable import Variable
 
 def hasnan(x):
     if isinstance(x, Variable):
         x = x.data
+        return np.isnan(x.sum())
     return (x != x).any() \
            or (x == torch.FloatTensor([float("-inf")])).any() \
            or (x == torch.FloatTensor([float("inf")])).any()

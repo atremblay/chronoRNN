@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 class LSTM(nn.Module):
     """docstring for ChronoLSTM"""
-    def __init__(self, input_size, hidden_size, batch_size, chrono=False, orthogonal_hidden_init=True):
+    def __init__(self, input_size, hidden_size, batch_size, chrono=0, orthogonal_hidden_init=True):
         super(LSTM, self).__init__()
         self.orthogonal_hidden_weight_init = orthogonal_hidden_init
 
@@ -36,7 +36,8 @@ class LSTM(nn.Module):
         lstm_c = Variable(torch.zeros(1, self.batch_size, self.hidden_size))
         return lstm_h, lstm_c
 
-    def chrono_bias(self, T):
+    def chrono_bias(self):
+        T = self.chrono
         # Initialize the biases according to section 2 of the paper
         print("Chrono initialization engaged")
         # the learnable bias of the k-th layer (b_ii|b_if|b_ig|b_io),
@@ -81,8 +82,8 @@ class LSTM(nn.Module):
                 hidden_weight = getattr(self.lstm, hidden_weight_name)
                 torch.nn.init.orthogonal(hidden_weight)
 
-        if self.chrono:
-            self.chrono_bias(self.input_size)
+        if self.chrono != 0:
+            self.chrono_bias()
 
         debug_inits(self, LOGGER)
 

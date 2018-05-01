@@ -57,7 +57,7 @@ class TaskParams(object):
     seq_len = attrib(default=500, convert=int)
     variable = attrib(default=False, convert=bool)
     alphabet = attrib(default=range(0, 8), convert=list)
-    chrono = attrib(default=False, convert=bool)
+    chrono = attrib(default=0, convert=int)
     dummy = attrib(default=8, convert=int)
     eos = attrib(default=9, convert=int)
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
