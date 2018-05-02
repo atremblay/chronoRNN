@@ -14,27 +14,27 @@ import random
 
 def uniform_warping_experiment():
 
-    running_list = (('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True', 5),
+    running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -porthogonal_hidden_weight_init=', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -porthogonal_hidden_weight_init=', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -porthogonal_hidden_weight_init=', 5),
                     )
     return _warping_experiment(running_list)
 
 
 def warping_experiment():
 
-    running_list = (('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True', 5),
+    running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -porthogonal_hidden_weight_init=', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -porthogonal_hidden_weight_init=', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -porthogonal_hidden_weight_init=', 5),
                     )
     return _warping_experiment(running_list)
 
 
 def uniform_padding_experiment():
 
-    running_list = (('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -ppadding_mode=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -ppadding_mode=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -ppadding_mode=True', 5),
+    running_list = (('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -ppadding_mode=True -porthogonal_hidden_weight_init=', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init=', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init=', 5),
                     )
     return _warping_experiment(running_list)
 

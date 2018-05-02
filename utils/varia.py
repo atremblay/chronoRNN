@@ -22,7 +22,8 @@ def debug_inits(module, logger):
             assert (var < torch.FloatTensor([100.])).all(), f"{name}: {var}"
             var_str = f"var: {var.cpu().numpy()}"
             mean = torch.mean(param).data
-            assert (torch.abs(mean) <= torch.FloatTensor([1.])).all(), f"{name}: {mean}"
+            if name != 'b_g':
+                assert (torch.abs(mean) <= torch.FloatTensor([1.])).all(), f"{name}: {mean}"
         else:
             var_str = "Vector is size 1, no variance."
 

@@ -78,6 +78,7 @@ class TaskParams(object):
     chrono = attrib(default=False, convert=bool)
     gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
+    orthogonal_hidden_weight_init = attrib(default=True, convert=bool)
 
 
 @attrs
@@ -132,6 +133,7 @@ class TaskModelTraining(object):
                              momentum=self.params.rmsprop_momentum,
                              alpha=self.params.rmsprop_alpha,
                              lr=self.params.rmsprop_lr)
+
     @staticmethod
     def make_scheduler(optim):
         # "learning rates are divided by 2 each time the evaluation loss has not decreased after 100 batches" - p.8

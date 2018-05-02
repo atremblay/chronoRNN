@@ -67,7 +67,9 @@ class Rnn(nn.Module):
                     if self.max_repeat is None:
                         torch.nn.init.constant(weight.data, 1)
                     else:
-                        torch.nn.init.uniform(weight.data, 1, 1 / (self.max_repeat))
+                        # -log(U([Tmin, Tmax]) - 1).
+                        #torch.nn.init.uniform(weight.data, 1, 1 / (self.max_repeat))
+                        torch.nn.init.uniform(weight.data, -np.log(1) - 1, -np.log(self.max_repeat) - 1)
 
 
                 elif weight.dim() == 1:
