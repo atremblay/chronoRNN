@@ -35,7 +35,8 @@ class Rnn(nn.Module):
 
         # Learnable leak term
         if self.leaky:
-            self.a = Parameter(maybe_cuda(torch.Tensor(1)))
+            #self.a = Parameter(maybe_cuda(torch.Tensor(1)))
+            self.a = Parameter(maybe_cuda(torch.Tensor(hidden_size)))
 
         # Time warp gate
         if self.gated:
@@ -80,9 +81,11 @@ class Rnn(nn.Module):
         if self.leaky:
             # This is inspired from setting the forget bias to 1
             if self.max_repeat is None:
-                torch.nn.init.constant(self.a, 1 / (1 + np.exp(-1)))
+                #torch.nn.init.constant(self.a, 1 / (1 + np.exp(-1)))
+                torch.nn.init.uniform(self.a, 1, 1 / (1 + np.exp(-1)))
             else:
-                torch.nn.init.constant(self.a, 1 / (self.max_repeat))
+                torch.nn.init.uniform(self.a, 1, 1 / (self.max_repeat))
+                #torch.nn.init.constant(self.a, 1 / (self.max_repeat))
 
         debug_inits(self, LOGGER)
 
