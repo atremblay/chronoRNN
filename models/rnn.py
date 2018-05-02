@@ -61,7 +61,7 @@ class Rnn(nn.Module):
     def reset_parameters(self):
         self.linear.reset_parameters()
         for name, weight in self.named_parameters():
-            if "linear." not in name:
+            if "linear.bias" not in name:
                 if self.orthogonal_hidden_init and (name == "w_hh" or name == "w_gh"):
                     torch.nn.init.orthogonal(weight)
                 if name == "b_g":
@@ -72,7 +72,7 @@ class Rnn(nn.Module):
                         #torch.nn.init.uniform(weight.data, 1, 1 / (self.max_repeat))
                         torch.nn.init.uniform(weight.data, -np.log(1) - 1, -np.log(self.max_repeat) - 1)
 
-
+                # Biases
                 elif weight.dim() == 1:
                     weight.data.zero_()
                 else:
