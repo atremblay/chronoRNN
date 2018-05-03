@@ -62,8 +62,7 @@ class TaskParams(object):
     eos = attrib(default=9, convert=int)
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
     gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
-    chrono = attrib(default=False, convert=bool)
-
+    orthogonal_hidden_init = attrib(default=False, convert=bool)
 
 @attrs
 class TaskModelTraining(object):
@@ -76,8 +75,6 @@ class TaskModelTraining(object):
         state = net.create_new_state()
         inp_len = X.size(0)
         outp_len = Y.size(0)
-        import pdb
-        # pdb.set_trace()
         # For every element in the sequence
         for i in range(outp_len):
             if i < inp_len:
@@ -85,8 +82,6 @@ class TaskModelTraining(object):
             else:
                 inp = None
             output, state = net(inp, state)
-            if hasnan(output):
-                pdb.set_trace()
             if Y.data[i, 0] != -1:
                 loss += criterion(output, Y[i])
                 if hasnan(loss):

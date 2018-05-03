@@ -13,7 +13,8 @@ LOGGER = logging.getLogger(__name__)
 
 class LSTM(nn.Module):
     """docstring for ChronoLSTM"""
-    def __init__(self, input_size, hidden_size, batch_size, chrono=0, orthogonal_hidden_init=True):
+    def __init__(self, input_size, hidden_size, batch_size, chrono=0,
+                 orthogonal_hidden_init=False):
         super(LSTM, self).__init__()
         self.orthogonal_hidden_weight_init = orthogonal_hidden_init
 
@@ -55,8 +56,6 @@ class LSTM(nn.Module):
 
 
     def reset_parameters(self):
-        self.linear.reset_parameters()
-        self.lstm.reset_parameters()
         #############
         # Set the bias of the input gates to 1.
         # Explanation:
@@ -67,6 +66,10 @@ class LSTM(nn.Module):
         # Code taken from:
         #  https://discuss.pytorch.org/t/set-forget-gate-bias-of-lstm/1745/4
         #############
+        for name, weight in self.named_parameters():
+            if 'weight' in name:
+                torch.nn.init.xavier_uniform(weight)
+
         for names in self.lstm._all_weights:
             for name in filter(lambda n: "bias" in n, names):
                 bias = getattr(self.lstm, name)
