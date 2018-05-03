@@ -15,8 +15,8 @@ import random
 def uniform_warping_experiment():
 
     running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
-                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
+                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
                     )
     return _warping_experiment(running_list)
 
@@ -24,17 +24,17 @@ def uniform_warping_experiment():
 def warping_experiment():
 
     running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
-                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
+                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
                     )
     return _warping_experiment(running_list)
 
 
 def uniform_padding_experiment():
 
-    running_list = (('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -ppadding_mode=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
-                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
+    running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -ppadding_mode=True', 5),
+                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
                     )
     return _warping_experiment(running_list)
 
@@ -42,8 +42,8 @@ def uniform_padding_experiment():
 def padding_experiment():
 
     running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -ppadding_mode=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
-                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
+                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
                     )
     return _warping_experiment(running_list)
 
@@ -72,17 +72,21 @@ def _warping_experiment(running_list):
 def plot_experiment(checkpoint_path):
 
     all_losses = {}
+    init = True
     for file in os.listdir(checkpoint_path):
         if file.endswith('.pth'):
+            print(file)
             baseModel = file[:file.rfind('_')]
-            model, forward_fn, loss_fn, dataloader_fn, history = evaluation.load_checkpoint(os.path.join(checkpoint_path, file))
+            model, forward_fn, loss_fn, dataloader_fn, history = evaluation.load_checkpoint(os.path.join(checkpoint_path, file), ('batch_size=1000', 'num_batches=10', 'epochs=1'))
+            model.eval()
             this_loss = []
-            for batch_num, x, y in dataloader_fn():
-                if batch_num > 312:
-                    break
+            if init:
+                init = False
+                dataloader_list = list(dataloader_fn())
 
+            for batch_num, x, y in dataloader_list:
                 losses = loss_fn(model, x, y)
-                this_loss.append(losses.data.numpy().mean())
+                this_loss.append(losses.data.numpy().mean()/500) # Divide by sequence length
 
             if baseModel.split('-')[2] in all_losses:
                 if baseModel in all_losses[baseModel.split('-')[2]]:
@@ -102,6 +106,10 @@ def plot_experiment(checkpoint_path):
             max_ser.append(max(loss))
             avg_ser.append(np.mean(loss).tolist())
             x.append(x_i)
+
+        Z = [(x_i, min_ser_i, max_ser_i, avg_ser_i) for x_i, min_ser_i, max_ser_i, avg_ser_i in
+             sorted(zip(x, min_ser, max_ser, avg_ser))]
+        x, min_ser, max_ser, avg_ser = zip(*Z)
 
         plot, = plt.plot(x, avg_ser, label=model_architecture)
         plots.append(plot)
@@ -128,8 +136,8 @@ if __name__ == '__main__':
     if not os.path.isdir(checkpoint_path): os.mkdir(checkpoint_path)
 
     checkpoint_path = ['--checkpoint_path', checkpoint_path]
-    # for run in exp[sys.argv[1]]():
-    #     main(run+checkpoint_path)
+    for run in exp[sys.argv[1]]():
+        main(run+checkpoint_path)
 
     random.seed(5000)
     plot_experiment(checkpoint_path[1])
