@@ -87,7 +87,7 @@ class TaskModelTraining(object):
                 if hasnan(loss):
                     print(i)
         assert not hasnan(loss)
-        return loss
+        return loss/outp_len
 
     @staticmethod
     def forward_fn(net, X, ):

@@ -45,7 +45,8 @@ class LSTM(nn.Module):
         # of shape (4*hidden_size)
 
         # Set second bias vector to zero for forget and input gate
-        self.lstm.bias_hh_l0.data[self.hidden_size * 2:] = 0
+        self.lstm.bias_hh_l0.data[:] = torch.zeros(self.lstm.bias_hh_l0.size())
+        self.lstm.bias_ih_l0.data[:] = torch.zeros(self.lstm.bias_ih_l0.size())
 
         # b_f ∼ log(𝒰 ([1, 𝑇 − 1]))
         # b_i = -b_f
@@ -53,7 +54,6 @@ class LSTM(nn.Module):
 
         self.lstm.bias_ih_l0.data[:self.hidden_size] = -torch.Tensor(bias.copy())
         self.lstm.bias_ih_l0.data[self.hidden_size: self.hidden_size * 2] = torch.Tensor(bias)
-
 
     def reset_parameters(self):
         #############
