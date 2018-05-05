@@ -84,8 +84,6 @@ class TaskModelTraining(object):
             output, state = net(inp, state)
             if Y.data[i, 0] != -1:
                 loss += criterion(output, Y[i])
-                if hasnan(loss):
-                    print(i)
         assert not hasnan(loss)
         return loss/outp_len
 
