@@ -13,11 +13,13 @@ LOGGER = logging.getLogger(__name__)
 
 class LSTM(nn.Module):
     """docstring for ChronoLSTM"""
-    def __init__(self, input_size, hidden_size, batch_size, chrono=0,
+    def __init__(self, input_size, hidden_size, batch_size, chrono=0, output_size=None,
                  orthogonal_hidden_init=False):
         super(LSTM, self).__init__()
         self.orthogonal_hidden_weight_init = orthogonal_hidden_init
 
+        if output_size is None:
+            output_size = input_size
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.batch_size = batch_size
@@ -25,10 +27,10 @@ class LSTM(nn.Module):
 
         self.lstm = nn.LSTM(
             input_size=input_size,
-            hidden_size=hidden_size
+            hidden_size=hidden_size,
         )
 
-        self.linear = nn.Linear(hidden_size, input_size)
+        self.linear = nn.Linear(hidden_size, output_size)
         self.reset_parameters()
 
     def create_new_state(self):
@@ -51,6 +53,7 @@ class LSTM(nn.Module):
         # b_i = -b_f
         bias = np.log(np.random.uniform(1, T - 1, size=self.hidden_size))
 
+        print(self.lstm.bias_ih_l0.size())
         self.lstm.bias_ih_l0.data[:self.hidden_size] = -torch.Tensor(bias.copy())
         self.lstm.bias_ih_l0.data[self.hidden_size: self.hidden_size * 2] = torch.Tensor(bias)
 
