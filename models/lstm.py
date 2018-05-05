@@ -81,6 +81,7 @@ class LSTM(nn.Module):
                 bias = getattr(self.lstm, name)
                 n = bias.size(0)
                 start, end = n // 4, n // 2
+                bias.data[:].fill_(0.)
                 bias.data[start:end].fill_(1.)
 
             """
