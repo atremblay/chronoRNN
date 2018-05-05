@@ -13,13 +13,9 @@ LOGGER = logging.getLogger(__name__)
 
 class LSTM(nn.Module):
     """docstring for ChronoLSTM"""
-    def __init__(self, input_size, hidden_size, batch_size, chrono=0, output_size=None,
-                 orthogonal_hidden_init=False):
+    def __init__(self, input_size, hidden_size, batch_size, chrono=0, output_size=None,):
         super(LSTM, self).__init__()
-        self.orthogonal_hidden_weight_init = orthogonal_hidden_init
 
-        if orthogonal_hidden_init:
-            logging.WARNING("Using orthogonal hidden state units.")
         if output_size is None:
             output_size = input_size
         self.input_size = input_size

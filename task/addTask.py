@@ -41,12 +41,9 @@ class TaskParams(object):
     rmsprop_momentum = attrib(default=0, convert=float)
     rmsprop_alpha = attrib(default=0.9, convert=float)
     # Dataloader params
-    num_batches = attrib(default=1000000, convert=int)
+    num_batches = attrib(default=10000, convert=int)
     seq_len = attrib(default=10, convert=int)
-    leaky = attrib(default=False, convert=bool)  # it's very important that this remains False by default
-    gated = attrib(default=False, convert=bool)  # it's very important that this remains False by default
     chrono = attrib(default=False, convert=bool)
-    orthogonal_hidden_init = attrib(default=False, convert=bool)
 
 @attrs
 class TaskModelTraining(object):

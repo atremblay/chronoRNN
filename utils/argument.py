@@ -64,8 +64,9 @@ def parse_options(argv):
     opt = parser.parse_args(argv)
     validate_arguments(opt)
     return opt
-def get_valid_fct_args(fct, parser):
 
+
+def get_valid_fct_args(fct, parser):
     fct_arguments = fct.__code__.co_varnames[:fct.__code__.co_argcount]
     parser_arguments = tuple(parser.__dict__.keys())
     common_args = [item for item in fct_arguments if item in parser_arguments]
