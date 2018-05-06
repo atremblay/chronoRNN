@@ -259,7 +259,7 @@ def copy_data(
         return values.T, output_values.T
 
 
-def add_data(T, batch_size):
+def old_add_data(T, batch_size):
     """
     Each training example consists of two input sequences of length 𝑇.
     The first one is a sequence of numbers drawn from 𝒰 ([0, 1]), the second
@@ -302,6 +302,49 @@ def add_data(T, batch_size):
     return np.concatenate([first_half, second_half], axis=1), output
 
 
+def add_data(T, batch_size):
+    """
+    Each training example consists of two input sequences of length 𝑇.
+    The first one is a sequence of numbers drawn from 𝒰 ([0, 1]), the second
+    is a sequence containing zeros everywhere, except for two locations, one in
+    the first half and another in the second half of the sequence.
+
+    The target is a single number, which is the sum of the numbers contained in
+    the first sequence at the positions marked in the second sequence.
+
+    Params
+    ------
+
+    𝑇: int
+
+    batch_size: int (default 32)
+
+    Returns
+    -------
+
+    inputs: numpy array of float32 of size (batch_size x 2𝑇)
+
+    outputs: float
+        The sum of the first half where the mask is on in the second half
+    """
+    first_half = np.random.rand(batch_size, T)
+    second_half = np.zeros((batch_size, T), dtype='int32')
+    idx = np.array(
+        [
+            np.random.choice(
+                range(T//2),
+                size=2,
+                replace=False
+            ) for _ in range(batch_size)
+        ]
+    )
+    second_half[range(batch_size), idx[:, 0]] = 1
+    second_half[range(batch_size), idx[:, 1] + T//2] = 1
+
+    output = (first_half * second_half).sum(axis=1)
+    seq = np.concatenate([np.expand_dims(first_half, -1), np.expand_dims(second_half, -1)], axis=2)
+    return seq, output
+
 def to_categorical(y, num_classes=None):
     """
     *** Copied from keras.utils.to_categorical ***
@@ -331,3 +374,33 @@ def to_categorical(y, num_classes=None):
     output_shape = input_shape + (num_classes,)
     categorical = np.reshape(categorical, output_shape)
     return categorical
+
+
+if __name__ == "__main__":
+    good_count = 0
+    bad_count = 0
+    for x, y in zip(*add_data(6, 10)):
+        print((x, y))
+        s = len(x)
+        seq_i0 = x[:s//2, 1]
+        i0 = np.argmax(seq_i0)
+        assert np.all(np.logical_or(
+            seq_i0 == 0,
+            seq_i0 == 1))
+
+        seq_i1 = x[s // 2:, 1]
+        i1 = np.argmax(seq_i1)
+        assert np.all(np.logical_or(
+            seq_i1 == 0,
+            seq_i1 == 1))
+        x0 = x[i0, 0]
+        x1 = x[i1 + s // 2, 0]
+
+        if np.isclose(x0 + x1, y):
+            good_count += 1
+        else:
+            bad_count += 1
+            #print(f"{result:0.3f} {y:0.3f} {i0:3} {i1:3} x0: {x0:0.3f} x1: {x1:0.3f}")
+
+    assert bad_count == 0, (good_count, bad_count)
+    print("Passed the Add test")

@@ -13,6 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 from utils.varia import hasnan
 
+
 # Generator of randomized test sequences
 def dataloader(batch_size, num_batches, seq_len):
     """
@@ -22,7 +23,7 @@ def dataloader(batch_size, num_batches, seq_len):
         inp, outp = add_data(seq_len, batch_size)
         inp = Variable(torch.from_numpy(inp))
         outp = Variable(torch.from_numpy(outp))
-        yield batch_num + 1, inp.float().unsqueeze(-1).permute(1, 0, 2), outp.float()
+        yield batch_num + 1, inp.float().permute(1, 0, 2), outp.float()
 
 
 @attrs
@@ -31,18 +32,17 @@ class TaskParams(object):
     name = attrib(default="addTask")
     # Model params
     model_type = attrib(default=None)
-    batch_size = attrib(default=1, convert=int)
-    input_size = attrib(default=1, convert=int)
+    batch_size = attrib(default=32, convert=int)
+    input_size = attrib(default=2, convert=int)
+    output_size = attrib(default=1, convert=int)
     hidden_size = attrib(default=128, convert=int)
     # Optimizer params
     rmsprop_lr = attrib(default=10**-3, convert=float)
-    rmsprop_momentum = attrib(default=0.9, convert=float)
-    rmsprop_alpha = attrib(default=0.95, convert=float)
+    rmsprop_momentum = attrib(default=0, convert=float)
+    rmsprop_alpha = attrib(default=0.9, convert=float)
     # Dataloader params
-    num_batches = attrib(default=1000000, convert=int)
+    num_batches = attrib(default=10000, convert=int)
     seq_len = attrib(default=10, convert=int)
-    leaky = attrib(default=False, convert=bool)  # it's very important that this remains False by default
-    gated = attrib(default=False, convert=bool)  # it's very important that this remains False by default
     chrono = attrib(default=False, convert=bool)
 
 @attrs
@@ -55,7 +55,18 @@ class TaskModelTraining(object):
         state = net.create_new_state()
         output = None
         for i in range(X.size(0)):
-            output, state = net(X[i], state)
+            is_last = i == X.size(0) - 1
+            output, state = net(X[i], state, do_fc=is_last)
+        assert not output is None
+        loss = criterion(output, Y)
+        assert not hasnan(loss)
+        return loss
+
+    @staticmethod
+    def loss_fn(net, X, Y, criterion):
+        state = net.create_new_state()
+        _, (lstm_h, lstm_c) = net.lstm(X, state)
+        output = net.linear(lstm_h)
         loss = criterion(output, Y)
         assert not hasnan(loss)
         return loss
@@ -63,9 +74,8 @@ class TaskModelTraining(object):
     @staticmethod
     def forward_fn(net, X):
         state = net.create_new_state()
-        output = None
-        for i in range(X.size(0)):
-            output, state = net(X[i], state)
+        _, (lstm_h, lstm_c) = net.lstm(X, state)
+        output = net.linear(lstm_h)
         return output
 
     def dataloader_fn(self):
@@ -94,4 +104,3 @@ class TaskModelTraining(object):
                              momentum=self.params.rmsprop_momentum,
                              alpha=self.params.rmsprop_alpha,
                              lr=self.params.rmsprop_lr)
-

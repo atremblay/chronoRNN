@@ -13,11 +13,11 @@ LOGGER = logging.getLogger(__name__)
 
 class LSTM(nn.Module):
     """docstring for ChronoLSTM"""
-    def __init__(self, input_size, hidden_size, batch_size, chrono=0,
-                 orthogonal_hidden_init=False):
+    def __init__(self, input_size, hidden_size, batch_size, chrono=0, output_size=None,):
         super(LSTM, self).__init__()
-        self.orthogonal_hidden_weight_init = orthogonal_hidden_init
 
+        if output_size is None:
+            output_size = input_size
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.batch_size = batch_size
@@ -25,10 +25,10 @@ class LSTM(nn.Module):
 
         self.lstm = nn.LSTM(
             input_size=input_size,
-            hidden_size=hidden_size
+            hidden_size=hidden_size,
         )
 
-        self.linear = nn.Linear(hidden_size, input_size)
+        self.linear = nn.Linear(hidden_size, output_size)
         self.reset_parameters()
 
     def create_new_state(self):
@@ -40,7 +40,7 @@ class LSTM(nn.Module):
     def chrono_bias(self):
         T = self.chrono
         # Initialize the biases according to section 2 of the paper
-        print("Chrono initialization engaged")
+        LOGGER.info("Chrono initialization engaged")
         # the learnable bias of the k-th layer (b_ii|b_if|b_ig|b_io),
         # of shape (4*hidden_size)
 
@@ -69,14 +69,18 @@ class LSTM(nn.Module):
         for name, weight in self.named_parameters():
             if 'weight' in name:
                 torch.nn.init.xavier_uniform(weight)
+            else:
+                weight.data.zero_()
 
         for names in self.lstm._all_weights:
             for name in filter(lambda n: "bias" in n, names):
                 bias = getattr(self.lstm, name)
                 n = bias.size(0)
                 start, end = n // 4, n // 2
+                bias.data[:].fill_(0.)
                 bias.data[start:end].fill_(1.)
 
+            """
             if self.orthogonal_hidden_weight_init:
                 # There is only one hidden weight matrix
                 hidden_weight_name = list(filter(lambda n: "weight" in n and "hh" in n, names))
@@ -84,6 +88,7 @@ class LSTM(nn.Module):
                 hidden_weight_name = hidden_weight_name[0]
                 hidden_weight = getattr(self.lstm, hidden_weight_name)
                 torch.nn.init.orthogonal(hidden_weight)
+            """
 
         if self.chrono != 0:
             self.chrono_bias()
@@ -93,13 +98,17 @@ class LSTM(nn.Module):
     def size(self):
         return self.input_size, self.hidden_size
 
-    def forward(self, x, state):
+    def forward(self, x, state, do_fc=True):
         lstm_h, lstm_c = state
         if x is None:
             x = Variable(torch.zeros(self.batch_size, self.input_size))
 
         x = x.unsqueeze(0)
         outp, (lstm_h, lstm_c) = self.lstm(x, (lstm_h, lstm_c))
-        o = self.linear(outp.squeeze(0))
 
-        return o.squeeze(0), (lstm_h, lstm_c)
+        if do_fc:
+            o = self.linear(outp.squeeze(0))
+        else:
+            o = None
+
+        return o, (lstm_h, lstm_c)
