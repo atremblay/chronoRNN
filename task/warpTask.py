@@ -78,7 +78,7 @@ class TaskParams(object):
     chrono = attrib(default=False, convert=bool)
     gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
-    orthogonal_hidden_weight_init = attrib(default=True, convert=bool)
+    orthogonal_hidden_init = attrib(default=False, convert=bool)
 
 
 @attrs

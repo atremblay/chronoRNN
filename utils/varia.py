@@ -28,5 +28,5 @@ def debug_inits(module, logger):
             var_str = "Vector is size 1, no variance."
 
         mean_str = f"mean: {mean.cpu().numpy()}"
-        logger.info(f"{name:14}: {var_str:18}  {mean_str:15}")
+        logger.debug(f"{name:14}: {var_str:18}  {mean_str:15}")
 
