@@ -85,9 +85,10 @@ class Rnn(nn.Module):
                 torch.nn.init.uniform(self.a, 1, 1 / (1 + np.exp(-1)))
             else:
                 if self.uniform_warp is None or self.uniform_warp==False:
-                    torch.nn.init.uniform(self.a, 1, 1 / (self.max_repeat))
+                    torch.nn.init.uniform(self.a, 1/10, 1 / (self.max_repeat))
                 else:
                     torch.nn.init.uniform(self.a, 1 / (self.max_repeat), 1 / (self.max_repeat))
+
                 #torch.nn.init.constant(self.a, 1 / (self.max_repeat))
 
         debug_inits(self, LOGGER)

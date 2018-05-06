@@ -34,8 +34,8 @@ def warping_experiment():
 def uniform_padding_experiment():
 
     running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -ppadding_mode=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
-                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
+                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1.2e-3', 5),
                     )
     return _warping_experiment(running_list)
 
@@ -43,8 +43,8 @@ def uniform_padding_experiment():
 def padding_experiment():
 
     running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -ppadding_mode=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
-                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
+                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1.5e-3', 5),
                     )
     return _warping_experiment(running_list)
 
