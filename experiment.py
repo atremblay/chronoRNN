@@ -7,6 +7,7 @@ import evaluation
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import pickle
 ################################################################################
 # Experiments
 ################################################################################
@@ -69,11 +70,11 @@ def _warping_experiment(running_list):
                 yield arguments_inst.split(' ')
 
 
-def plot_experiment(checkpoint_path):
+def evaluate_experiment(checkpoint_path):
 
     all_losses = {}
     for file in os.listdir(checkpoint_path):
-        if file.endswith('.pth'):
+        if '-leaky_RNN-' in file and file.endswith('.pth'):
             print(file)
             baseModel = file[:file.rfind('_')]
             model, forward_fn, loss_fn, dataloader_fn, history = evaluation.load_checkpoint(os.path.join(checkpoint_path, file), ('batch_size=1000', 'num_batches=10', 'epochs=1'))
@@ -92,6 +93,12 @@ def plot_experiment(checkpoint_path):
                     all_losses[baseModel.split('-')[2]][baseModel] = [int(baseModel.split('-')[4]),[np.mean(this_loss).tolist()]]
             else:
                 all_losses[baseModel.split('-')[2]] = {baseModel:[int(baseModel.split('-')[4]),[np.mean(this_loss).tolist()]]}
+
+    pickle.dump(all_losses, open(os.path.join(checkpoint_path, 'eval.p'), "wb"))
+
+    return all_losses
+
+def plot_experiment(all_losses, checkpoint_path):
 
     # initial plot
     plots = []
@@ -136,5 +143,8 @@ if __name__ == '__main__':
     for run in exp[sys.argv[1]]():
         main(run+checkpoint_path)
 
-    # random.seed(5000)
-    # plot_experiment(checkpoint_path[1])
+    random.seed(5000)
+    all_losses = evaluate_experiment(checkpoint_path[1])
+    all_losses_1=pickle.load(open(os.path.join(checkpoint_path[1], 'eval_1.p'), "rb"))
+    all_losses_1['leaky_RNN']=all_losses['leaky_RNN']
+    plot_experiment(all_losses_1, checkpoint_path[1])

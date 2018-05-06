@@ -15,18 +15,19 @@ DEBUG = False
 class Rnn(nn.Module):
     """A vanilla RNN implementation with a gated option"""
     def __init__(self, input_size, hidden_size, max_repeat=None, batch_size=32, gated=False, leaky=False,
-                 orthogonal_hidden_weight_init=True):
+                 orthogonal_hidden_init=True, uniform_warp=None):
         super(Rnn, self).__init__()
 
         assert not (gated and leaky), "should be gated or leaky or neither, but can't be both"
 
-        self.orthogonal_hidden_init = orthogonal_hidden_weight_init
+        self.orthogonal_hidden_init = orthogonal_hidden_init
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.batch_size = batch_size
         self.gated = gated
         self.leaky = leaky
         self.max_repeat = max_repeat
+        self.uniform_warp = uniform_warp
 
         # Hidden state
         self.w_xh = Parameter(maybe_cuda(torch.Tensor(input_size, hidden_size)))
@@ -69,7 +70,6 @@ class Rnn(nn.Module):
                         torch.nn.init.constant(weight.data, 1)
                     else:
                         # -log(U([Tmin, Tmax]) - 1).
-                        #torch.nn.init.uniform(weight.data, 1, 1 / (self.max_repeat))
                         torch.nn.init.uniform(weight.data, -np.log(1) - 1, -np.log(self.max_repeat) - 1)
 
                 # Biases
@@ -84,7 +84,10 @@ class Rnn(nn.Module):
                 #torch.nn.init.constant(self.a, 1 / (1 + np.exp(-1)))
                 torch.nn.init.uniform(self.a, 1, 1 / (1 + np.exp(-1)))
             else:
-                torch.nn.init.uniform(self.a, 1, 1 / (self.max_repeat))
+                if self.uniform_warp is None or self.uniform_warp==False:
+                    torch.nn.init.uniform(self.a, 1, 1 / (self.max_repeat))
+                else:
+                    torch.nn.init.uniform(self.a, 1 / (self.max_repeat), 1 / (self.max_repeat))
                 #torch.nn.init.constant(self.a, 1 / (self.max_repeat))
 
         debug_inits(self, LOGGER)
