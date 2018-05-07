@@ -7,6 +7,7 @@ import evaluation
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import pickle
 ################################################################################
 # Experiments
 ################################################################################
@@ -33,8 +34,8 @@ def warping_experiment():
 def uniform_padding_experiment():
 
     running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -ppadding_mode=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
-                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
+                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp=True -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1.2e-3', 5),
                     )
     return _warping_experiment(running_list)
 
@@ -42,8 +43,8 @@ def uniform_padding_experiment():
 def padding_experiment():
 
     running_list = (#('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -ppadding_mode=True', 5),
-                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
-                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1e-3', 5),
+                    #('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pgated=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=2e-3', 5),
+                    ('--task warpTask --checkpoint_interval 0 -pmodel_type=Rnn -puniform_warp= -pleaky=True -ppadding_mode=True -porthogonal_hidden_weight_init= -prmsprop_lr=1.5e-3', 5),
                     )
     return _warping_experiment(running_list)
 
@@ -62,14 +63,14 @@ exp = {'uniform_warping': uniform_warping_experiment,
 def _warping_experiment(running_list):
 
     for run in running_list:
-        for max_warp in range(10, 51, 10):
+        for max_warp in range(10, 101, 10):
             arguments = run[0] + ' -pmax_repeat=' + str(max_warp)
             for run_inst in range(run[1]):
                 arguments_inst = arguments+' --run_instance ' + str(run_inst)
                 yield arguments_inst.split(' ')
 
 
-def plot_experiment(checkpoint_path):
+def evaluate_experiment(checkpoint_path):
 
     all_losses = {}
     for file in os.listdir(checkpoint_path):
@@ -92,6 +93,12 @@ def plot_experiment(checkpoint_path):
                     all_losses[baseModel.split('-')[2]][baseModel] = [int(baseModel.split('-')[4]),[np.mean(this_loss).tolist()]]
             else:
                 all_losses[baseModel.split('-')[2]] = {baseModel:[int(baseModel.split('-')[4]),[np.mean(this_loss).tolist()]]}
+
+    pickle.dump(all_losses, open(os.path.join(checkpoint_path, 'eval.p'), "wb"))
+
+    return all_losses
+
+def plot_experiment(all_losses, checkpoint_path):
 
     # initial plot
     plots = []
@@ -136,5 +143,8 @@ if __name__ == '__main__':
     for run in exp[sys.argv[1]]():
         main(run+checkpoint_path)
 
-    # random.seed(5000)
-    # plot_experiment(checkpoint_path[1])
+    random.seed(5000)
+    all_losses = evaluate_experiment(checkpoint_path[1])
+    # all_losses_1=pickle.load(open(os.path.join(checkpoint_path[1], 'eval_1.p'), "rb"))
+    # all_losses_1['leaky_RNN']=all_losses['leaky_RNN']
+    plot_experiment(all_losses_1, checkpoint_path[1])
