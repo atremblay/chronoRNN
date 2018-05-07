@@ -63,7 +63,7 @@ exp = {'uniform_warping': uniform_warping_experiment,
 def _warping_experiment(running_list):
 
     for run in running_list:
-        for max_warp in range(10, 51, 10):
+        for max_warp in range(10, 101, 10):
             arguments = run[0] + ' -pmax_repeat=' + str(max_warp)
             for run_inst in range(run[1]):
                 arguments_inst = arguments+' --run_instance ' + str(run_inst)
@@ -74,7 +74,7 @@ def evaluate_experiment(checkpoint_path):
 
     all_losses = {}
     for file in os.listdir(checkpoint_path):
-        if '-leaky_RNN-' in file and file.endswith('.pth'):
+        if file.endswith('.pth'):
             print(file)
             baseModel = file[:file.rfind('_')]
             model, forward_fn, loss_fn, dataloader_fn, history = evaluation.load_checkpoint(os.path.join(checkpoint_path, file), ('batch_size=1000', 'num_batches=10', 'epochs=1'))
@@ -145,6 +145,6 @@ if __name__ == '__main__':
 
     random.seed(5000)
     all_losses = evaluate_experiment(checkpoint_path[1])
-    all_losses_1=pickle.load(open(os.path.join(checkpoint_path[1], 'eval_1.p'), "rb"))
-    all_losses_1['leaky_RNN']=all_losses['leaky_RNN']
+    # all_losses_1=pickle.load(open(os.path.join(checkpoint_path[1], 'eval_1.p'), "rb"))
+    # all_losses_1['leaky_RNN']=all_losses['leaky_RNN']
     plot_experiment(all_losses_1, checkpoint_path[1])
