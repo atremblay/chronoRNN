@@ -64,7 +64,7 @@ class TaskParams(object):
     hidden_size = attrib(default=64, convert=int) # "[For the warp task], all networks have 64 units" p9, last paragraph
     # Optimizer params
     rmsprop_lr = attrib(default=2e-4, convert=float)
-    rmsprop_momentum = attrib(default=0.9, convert=float)
+    rmsprop_momentum = attrib(default=0.5, convert=float)
     rmsprop_alpha = attrib(default=0.9, convert=float) # "RMSProp with an alpha of 0.9 [is used]" p8, paragraph 2
     # Dataloader params
     epochs = attrib(default=3, convert=int)  # P.6, last paragraph. WE NEED TO DO EPOCHS!
@@ -78,7 +78,7 @@ class TaskParams(object):
     chrono = attrib(default=False, convert=bool)
     gated = attrib(default=False, convert=bool) # it's very important that this remains False by default
     leaky = attrib(default=False, convert=bool) # it's very important that this remains False by default
-    orthogonal_hidden_init = attrib(default=False, convert=bool)
+    orthogonal_hidden_weight_init = attrib(default=False, convert=bool)
 
 
 @attrs
@@ -137,5 +137,5 @@ class TaskModelTraining(object):
     @staticmethod
     def make_scheduler(optim):
         # "learning rates are divided by 2 each time the evaluation loss has not decreased after 100 batches" - p.8
-        return torch.optim.lr_scheduler.ReduceLROnPlateau(optim, patience=100, factor=0.5, verbose=True, threshold=0)
+        return torch.optim.lr_scheduler.ReduceLROnPlateau(optim, patience=100, factor=0.75, verbose=True, threshold=0)
 
